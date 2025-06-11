@@ -1,6 +1,6 @@
 <div align="center">
 
-# Solana App Kit
+# User application for GoCabs with Solana App Kit 
 
 ### Open-Source React Native Scaffold for Building iOS and Android Crypto Mobile Apps with Solana Protocols.
 
@@ -51,26 +51,38 @@
 
 ## 📋 Detailed Table of Contents
 
-- [📱 App Features](#-app-features)
-- [📚 Documentation](#-documentation)
-- [📦 Core Installation](#-core-installation)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [✅ Prerequisites](#-prerequisites)
-- [🚀 Quick Start](#-quick-start)
-- [⌨️ Hotkeys](#️-hotkeys)
-- [🧪 Development Mode Guide](#-development-mode-guide)
-- [🏁 Getting Started](#-getting-started)
-- [📂 Project Structure](#-project-structure)
-- [🧩 Modules](#-modules)
-- [📊 Examples](#-examples)
-- [🚢 Production Deployment](#-production-deployment)
-- [📚 Dependencies](#-dependencies)
-- [🤝 Contributing](#-contributing)
-- [👥 Contributors](#-contributors)
-- [📄 License](#-license)
-- [❓ Troubleshooting](#-troubleshooting)
-- [🔒 Security](#-security)
-- [🌐 Community](#-community)
+- [User application for GoCabs with Solana App Kit](#user-application-for-gocabs-with-solana-app-kit)
+    - [Open-Source React Native Scaffold for Building iOS and Android Crypto Mobile Apps with Solana Protocols.](#open-source-react-native-scaffold-for-building-ios-and-android-crypto-mobile-apps-with-solana-protocols)
+  - [Key Protocol Integrations](#key-protocol-integrations)
+  - [📋 Detailed Table of Contents](#-detailed-table-of-contents)
+  - [📱 App Features](#-app-features)
+  - [📚 Documentation](#-documentation)
+  - [📦 Core Installation](#-core-installation)
+  - [🛠️ Tech Stack](#️-tech-stack)
+  - [✅ Prerequisites](#-prerequisites)
+  - [🚀 Quick Start](#-quick-start)
+    - [Development vs Standard Mode](#development-vs-standard-mode)
+  - [⌨️ Hotkeys](#️-hotkeys)
+  - [🧪 Development Mode Guide](#-development-mode-guide)
+  - [🏁 Getting Started](#-getting-started)
+    - [Mobile App Installation](#mobile-app-installation)
+    - [Server Installation](#server-installation)
+    - [Environment Variables for EAS Builds](#environment-variables-for-eas-builds)
+    - [Running the Mobile App](#running-the-mobile-app)
+      - [Standard vs Development Mode](#standard-vs-development-mode)
+      - [Starting the App](#starting-the-app)
+      - [Missing Environment Variables](#missing-environment-variables)
+      - [iOS](#ios)
+      - [Android](#android)
+        - [Android SDK Setup](#android-sdk-setup)
+  - [📂 Project Structure](#-project-structure)
+  - [🧩 Modules](#-modules)
+  - [🤝 Contributing](#-contributing)
+  - [👥 Contributors](#-contributors)
+  - [🔒 Security](#-security)
+  - [❓ Troubleshooting](#-troubleshooting)
+  - [🌐 Community](#-community)
+  - [📄 License](#-license)
 
 ---
 
