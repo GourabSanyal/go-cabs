@@ -76,6 +76,7 @@ yarn-error.log
 .expo
 .bundle
 .env.local
+.env
 
 # Cursor IDE
 .cursor/
