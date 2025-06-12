@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useAppNavigation } from '@/shared/hooks/useAppNavigation';
 import EmbeddedWalletAuth from '@/modules/wallet-providers/components/wallet/EmbeddedWallet';
 import TurnkeyWalletAuth from '@/modules/wallet-providers/components/turnkey/TurnkeyWallet';
+import MobileWalletAdapter from '@/modules/wallet-providers/components/mobile-wallet-adapter/MobileWalletAdapter';
 import { loginSuccess } from '@/shared/state/auth/reducer';
 import { RootState } from '@/shared/state/store';
 import { useCustomization } from '@/shared/config/CustomizationProvider';
@@ -527,7 +528,15 @@ export default function LoginScreen() {
       case 'privy':
       case 'dynamic':
       default:
-        return <EmbeddedWalletAuth onWalletConnected={handleWalletConnected} />;
+        return (
+          <>
+            {/* Mobile Wallet Adapter for Android - shows individual wallet buttons */}
+            <MobileWalletAdapter onWalletConnected={handleWalletConnected} />
+            
+            {/* Standard embedded wallet auth */}
+            <EmbeddedWalletAuth onWalletConnected={handleWalletConnected} />
+          </>
+        );
     }
   };
 

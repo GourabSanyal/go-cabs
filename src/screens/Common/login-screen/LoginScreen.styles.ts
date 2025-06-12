@@ -155,6 +155,34 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
+  // Mobile Wallet Adapter styles
+  mobileWalletContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  walletSectionTitle: {
+    fontFamily: TYPOGRAPHY.fontFamily,
+    fontSize: TYPOGRAPHY.size.lg,
+    fontWeight: '600',
+    lineHeight: TYPOGRAPHY.lineHeight.lg,
+    color: COLORS.white,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  walletButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '75%',
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.lightBackground,
+    marginVertical: 6,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: COLORS.borderDarkColor,
+  },
 });
 
 export default styles;
