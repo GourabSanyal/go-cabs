@@ -85,6 +85,11 @@ import EditIcon from './EditIcon';
 import GalleryIcon from './GalleryIcon';
 import NftIcon from './NftIcon';
 
+// Wallet icons
+import PhantomIcon from './phantom-icon.svg';
+import SolflareIcon from './solflare-icon.svg';
+import MetaMaskIcon from './metamask-icon.svg';
+
 export default {
   SolanaDot,
   SplashText,
@@ -172,4 +177,9 @@ export default {
   EditIcon,
   GalleryIcon,
   NftIcon,
+  
+  // Wallet icons
+  PhantomIcon,
+  SolflareIcon,
+  MetaMaskIcon,
 };
