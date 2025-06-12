@@ -1,0 +1,102 @@
+{
+  "-OM1PpVDNmpzNvPJdULA": {
+    "driverlocation": { "latitude": "19.076", "longitude": "72.8777" },
+    "name": "Rajesh Kumar",
+    "email": "rajeshk@example.com",
+    "phone": "9876543210",
+    "rating": "4.8",
+    "regnumber": "MH12AB1234",
+    "vehiclemodel": "Maruti Suzuki Dzire",
+    "vehicletype": "Sedan",
+    "walletAddress": "0x1234567890123456789012345678901234567890",
+    "bidAmount": 110,
+    "estimatedArrivalMinutes": 10,
+    "estimatedTripDurationMinutes": 20,
+    "status": "pending",
+    "createdAt": "2021-01-01T00:00:00Z",
+    "expiresAt": "2021-01-01T00:00:00Z",
+    "vehicleStatus": {
+      "batteryLevel": 50,
+      "estimatedRange": 100
+    },
+    "driverLocation": {
+      "latitude": "19.076",
+      "longitude": "72.8777"
+    }
+  },
+  "-OM1oVo19w2gzkYX8e8_": {
+    "driverlocation": { "latitude": "19.082", "longitude": "72.87" },
+    "name": "Raaj Mallick",
+    "email": "raajmallick@example.com",
+    "phone": "9876543210",
+    "rating": "4.8",
+    "regnumber": "MH12AB1234",
+    "vehiclemodel": "Maruti Suzuki Dzire",
+    "vehicletype": "Sedan",
+    "walletAddress": "0x1234567890123456789012345678901234567890",
+    "bidAmount": 120,
+    "estimatedArrivalMinutes": 10,
+    "estimatedTripDurationMinutes": 20,
+    "status": "pending",
+    "createdAt": "2021-01-01T00:00:00Z",
+    "expiresAt": "2021-01-01T00:00:00Z",
+    "vehicleStatus": {
+      "batteryLevel": 50,
+      "estimatedRange": 100
+    },
+    "driverLocation": {
+      "latitude": "19.082",
+      "longitude": "72.87"
+    }
+  },
+  "-OM1ocRm4KQiz-LbRwRs": {
+    "driverlocation": { "latitude": "19.07", "longitude": "72.885" },
+    "name": "Rahul Arora",
+    "email": "rahularora@example.com",
+    "phone": "9876543210",
+    "rating": "4.8",
+    "regnumber": "MH12AB1234",
+    "vehiclemodel": "Maruti Suzuki Dzire",
+    "vehicletype": "Sedan",
+    "walletAddress": "0x1234567890123456789012345678901234567890",
+    "bidAmount": 130,
+    "estimatedArrivalMinutes": 10,
+    "estimatedTripDurationMinutes": 20,
+    "status": "pending",
+    "createdAt": "2021-01-01T00:00:00Z",
+    "expiresAt": "2021-01-01T00:00:00Z",
+    "vehicleStatus": {
+      "batteryLevel": 50,
+      "estimatedRange": 100
+    },
+    "driverLocation": {
+      "latitude": "19.07",
+      "longitude": "72.885"
+    }
+  },
+  "-OM1oio3arLbbMul4zDP": {
+    "driverlocation": { "latitude": "19.065", "longitude": "72.88" },
+    "name": "Biswajit Das",
+    "email": "biswajitdas@example.com",
+    "phone": "9876543210",
+    "rating": "4.8",
+    "regnumber": "MH12AB1234",
+    "vehiclemodel": "Maruti Suzuki Dzire",
+    "vehicletype": "Sedan",
+    "walletAddress": "0x1234567890123456789012345678901234567890",
+    "bidAmount": 140,
+    "estimatedArrivalMinutes": 10,
+    "estimatedTripDurationMinutes": 20,
+    "status": "pending",
+    "createdAt": "2021-01-01T00:00:00Z",
+    "expiresAt": "2021-01-01T00:00:00Z",
+    "vehicleStatus": {
+      "batteryLevel": 50,
+      "estimatedRange": 100
+    },
+    "driverLocation": {
+      "latitude": "19.065",
+      "longitude": "72.88"
+    }
+  }
+}

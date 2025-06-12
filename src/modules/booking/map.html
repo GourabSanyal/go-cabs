@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ride Map</title>
+    <!-- Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <!-- Mapbox Geocoder (optional, if you want a search box directly on map) -->
+    <!-- <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script> -->
+    <!-- <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css"> -->
+    <style>
+        /* Basic styling */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        #info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+            /* Ensure it's above the map */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div id="info">Initializing map...</div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZ29jYWJzIiwiYSI6ImNtYXBnMmJncTA4NXQyanF2NXIzMHEwNWkifQ.7arQIkXZmcjAiGaqPRKDAQ';
+
+        let map;
+        let pickupLocation = null;
+        let destinationLocation = null;
+        let activeMarkers = [];
+        let driverTrackingMarker = null; // For driver's marker in tracking view
+        let driverRouteLayerId = 'driver-route'; // Specific ID for driver tracking route
+
+        window.setLocationsAndCalculateRoute = function (pLng, pLat, dLng, dLat) {
+            pickupLocation = [parseFloat(pLng), parseFloat(pLat)];
+            destinationLocation = [parseFloat(dLng), parseFloat(dLat)];
+
+            if (map && map.loaded()) {
+                clearMapLayersAndMarkers();
+                addMarkers();
+                calculateAndDisplayRoute();
+            } else {
+                // Locations are set, map.on('load') will pick them up or this function will be called again by RN if map wasn't ready.
+            }
+        };
+
+        function clearMapLayersAndMarkers() {
+            if (map.getLayer('route')) map.removeLayer('route');
+            if (map.getSource('route')) map.removeSource('route');
+            activeMarkers.forEach(marker => marker.remove());
+            activeMarkers = [];
+            // Also clear driver tracking specific layers if they exist
+            clearDriverTrackingLayer();
+        }
+
+        function clearDriverTrackingLayer() {
+            if (driverTrackingMarker) {
+                driverTrackingMarker.remove();
+                driverTrackingMarker = null;
+            }
+            if (map.getLayer(driverRouteLayerId)) map.removeLayer(driverRouteLayerId);
+            if (map.getSource(driverRouteLayerId)) map.removeSource(driverRouteLayerId);
+        }
+
+        function addMarkers() {
+            if (!pickupLocation || !destinationLocation) return;
+            const pickupMarker = new mapboxgl.Marker().setLngLat(pickupLocation).setPopup(new mapboxgl.Popup().setText("Pickup")).addTo(map);
+            activeMarkers.push(pickupMarker);
+            const destinationMarker = new mapboxgl.Marker().setLngLat(destinationLocation).setPopup(new mapboxgl.Popup().setText("Destination")).addTo(map);
+            activeMarkers.push(destinationMarker);
+        }
+
+        function initMap() {
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [0, 0], // Generic center
+                zoom: 1   // Low zoom
+            });
+
+            map.on('load', () => {
+                document.getElementById('info').innerText = 'WebView v4: Map loaded. Waiting for location data from app...';
+                if (pickupLocation && destinationLocation) {
+                    // addMarkers();
+                    // calculateAndDisplayRoute();
+                }
+                signalNativeMapReady();
+            });
+            map.on('error', (e) => {
+                console.error('Mapbox GL error:', e.error ? e.error.message : e);
+                document.getElementById('info').innerText = 'Map error.';
+            });
+        }
+
+        async function calculateAndDisplayRoute() {
+            if (!pickupLocation || !destinationLocation) {
+                document.getElementById('info').innerText = 'Please provide pickup and drop-off.';
+                return;
+            }
+            document.getElementById('info').innerText = 'Calculating route...';
+            if (!mapboxgl.accessToken) {
+                console.error("WebView: Missing access token for routing.");
+                document.getElementById('info').innerText = 'Error: Missing access token.';
+                return;
+            }
+            const coordinates = `${pickupLocation.join(',')};${destinationLocation.join(',')}`;
+            const queryUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordinates}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+
+            try {
+                const query = await fetch(queryUrl, { method: 'GET' });
+                const json = await query.json();
+
+                if (json.routes && json.routes.length) {
+                    const data = json.routes[0];
+                    const route = data.geometry.coordinates;
+                    const geojson = { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: route } };
+
+                    if (map.getSource('route')) map.getSource('route').setData(geojson);
+                    else {
+                        map.addLayer({
+                            id: 'route', type: 'line', source: { type: 'geojson', data: geojson },
+                            layout: { 'line-join': 'round', 'line-cap': 'round' },
+                            paint: { 'line-color': '#3887be', 'line-width': 5, 'line-opacity': 0.75 }
+                        });
+                    }
+                    const distance = (data.distance / 1000).toFixed(2);
+                    const duration = Math.round(data.duration / 60);
+                    const co2EmissionFactor = 0.180; // kg CO2 per km (approx. 180g CO2/km for an average mid-sized petrol car)
+                    const co2Emissions = (parseFloat(distance) * co2EmissionFactor).toFixed(2); // in kg
+                    document.getElementById('info').innerText = `Distance: ${distance} km (${duration} mins)\nEst. CO2 Emissions: ${co2Emissions} kg`;
+                    const bounds = new mapboxgl.LngLatBounds(route[0], route[0]);
+                    for (const coord of route) bounds.extend(coord);
+                    map.fitBounds(bounds, { padding: 60 });
+                } else {
+                    const message = json.message || "Directions request failed";
+                    document.getElementById('info').innerText = `Route Error: ${message}`;
+                    console.error("Mapbox Directions API error:", json);
+                }
+            } catch (error) {
+                console.error("Error fetching directions:", error);
+                document.getElementById('info').innerText = 'Could not fetch route details.';
+            }
+        }
+
+        window.updateDriverTrackingView = async function (driverLng, driverLat, destLng, destLat) {
+            if (!map || !map.loaded()) {
+                console.warn("updateDriverTrackingView called before map is ready.");
+                // Optionally, store these and try again on map load, or rely on RN to recall
+                return;
+            }
+            document.getElementById('info').innerText = 'Updating driver and destination view...';
+
+            clearDriverTrackingLayer(); // Clear previous driver marker and route
+            // Note: We are not clearing general pickup/destination markers from activeMarkers here
+            // as they might be from a different context (e.g. initial booking screen)
+            // If this map instance is solely for tracking, you might merge clearing logic.
+
+            const driverCoords = [parseFloat(driverLng), parseFloat(driverLat)];
+            const destinationCoords = [parseFloat(destLng), parseFloat(destLat)];
+
+            // Add Driver Marker
+            driverTrackingMarker = new mapboxgl.Marker({ color: 'blue' })
+                .setLngLat(driverCoords)
+                .setPopup(new mapboxgl.Popup().setText("Driver"))
+                .addTo(map);
+
+            // Add Destination Marker (if not already shown by addMarkers, or use a different style)
+            // For simplicity, let's assume map.html might be used for different views.
+            // We can add a distinct destination marker for tracking if needed, or ensure it's updated.
+            // For now, let's re-add it to ensure it's present for this view.
+            const trackingDestMarker = new mapboxgl.Marker({ color: 'green' })
+                .setLngLat(destinationCoords)
+                .setPopup(new mapboxgl.Popup().setText("Destination"))
+                .addTo(map);
+            // We need a way to manage these markers if they are separate from activeMarkers
+            // For now, pushing to activeMarkers for cleanup, but this might need refinement
+            // depending on how map.html is reused.
+            activeMarkers.push(trackingDestMarker); // This will be cleared by clearMapLayersAndMarkers
+            // Or manage a separate list for tracking-specific markers.
+
+            // Fetch and display route from driver to destination
+            const coordinates = `${driverCoords.join(',')};${destinationCoords.join(',')}`;
+            const queryUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordinates}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+
+            try {
+                const query = await fetch(queryUrl, { method: 'GET' });
+                const json = await query.json();
+
+                if (json.routes && json.routes.length) {
+                    const data = json.routes[0];
+                    const route = data.geometry.coordinates;
+                    const geojson = { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: route } };
+
+                    if (map.getSource(driverRouteLayerId)) {
+                        map.getSource(driverRouteLayerId).setData(geojson);
+                    } else {
+                        map.addLayer({
+                            id: driverRouteLayerId,
+                            type: 'line',
+                            source: { type: 'geojson', data: geojson },
+                            layout: { 'line-join': 'round', 'line-cap': 'round' },
+                            paint: { 'line-color': '#1e90ff', 'line-width': 6, 'line-opacity': 0.8 }
+                        });
+                    }
+                    const distance = (data.distance / 1000).toFixed(2);
+                    const duration = Math.round(data.duration / 60);
+                    document.getElementById('info').innerText = `Tracking: Driver to Destination - ${distance} km (${duration} mins)`;
+
+                    const bounds = new mapboxgl.LngLatBounds(driverCoords, driverCoords);
+                    bounds.extend(destinationCoords);
+                    for (const coord of route) bounds.extend(coord);
+                    map.fitBounds(bounds, { padding: 70 });
+
+                } else {
+                    const message = json.message || "Directions request failed for tracking";
+                    document.getElementById('info').innerText = `Tracking Route Error: ${message}`;
+                    console.error("Mapbox Directions API error (tracking):", json);
+                }
+            } catch (error) {
+                console.error("Error fetching tracking directions:", error);
+                document.getElementById('info').innerText = 'Could not fetch tracking route.';
+            }
+        };
+
+        function signalNativeMapReady() {
+            if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+                window.ReactNativeWebView.postMessage(JSON.stringify({ type: "MAP_READY" }));
+            }
+        }
+
+        window.onload = function () {
+            initMap();
+        };
+    </script>
+</body>
+
+</html>
