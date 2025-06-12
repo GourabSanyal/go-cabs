@@ -38,11 +38,11 @@ export function initDynamicClient(
         chains: {
           solana: {
             enabled: true,
-            mainnet: true, // or false for devnet
+            mainnet: false, // Changed to false for devnet
           },
         },
         defaultChain: 'Sol', // Set default chain to Solana
-        defaultNetwork: 'mainnet', // Set default network 
+        defaultNetwork: 'devnet', // Changed to devnet 
         // Disable UI confirmations for transactions - set multiple ways to ensure it works
         disableConfirmationModal: true,
         noTransactionConfirmationModal: true, // Alternative name 
@@ -107,6 +107,7 @@ export function initDynamicClient(
             mainnet: 'https://api.mainnet-beta.solana.com',
             devnet: 'https://api.devnet.solana.com'
           },
+          defaultNetwork: 'devnet', // Set devnet as default
           autoVerify: false, // Don't auto-verify transactions
           autoApprove: true,  // Auto-approve transactions
           disableTransactionModal: true, // Specifically disable transaction modal for Solana
@@ -132,7 +133,7 @@ export function initDynamicClient(
         
         // Set Solana as default
         dynamicClient.settings.set('defaultChain', 'Sol');
-        dynamicClient.settings.set('defaultNetwork', 'mainnet');
+        dynamicClient.settings.set('defaultNetwork', 'devnet');
         
         // Make sure embedded wallet is prioritized
         dynamicClient.settings.set('walletConnectorsPriorityOrder', ['dynamic_embedded_wallet']);

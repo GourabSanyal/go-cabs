@@ -65,7 +65,7 @@ const HomeEnvErrorBanner = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>⚠️ Missing Environment Variables</Text>
+                <Text style={styles.headerTitle}>⚠️ Missing Environment Variables haha</Text>
             </View>
 
             <View style={styles.content}>

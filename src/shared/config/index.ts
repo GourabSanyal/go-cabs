@@ -43,7 +43,7 @@ export interface AuthProviderConfig {
   turnkey: TurnkeyConfig;
 }
 
-/** Transaction config (unchanged) */
+/** Transaction config */
 export interface TransactionProviderConfig {
   defaultFeeTier: string;
   defaultMode: 'priority' | 'jito';
@@ -98,7 +98,7 @@ export const DefaultTransactionConfig: TransactionProviderConfig = {
     high: 100000000,
     'very-high': 2000000000,
   },
-  network: 'mainnet-beta',
+  network: 'devnet',
   defaultFeeTier: ''
 };
 

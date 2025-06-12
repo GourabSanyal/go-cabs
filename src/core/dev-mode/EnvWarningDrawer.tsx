@@ -51,7 +51,7 @@ const EnvWarningDrawer = () => {
                     <View style={styles.envContainer}>
                         <Text style={styles.envTitle}>Missing Environment Variables</Text>
                         <Text style={styles.envDescription}>
-                            Your app is missing required environment variables which may cause certain features to fail.
+                            gggg Your app is missing required environment variables which may cause certain features to fail.
                             Switch to Dev Mode to access login bypasses and navigation tools.
                         </Text>
                         {missingEnvVars.slice(0, 3).map((varName) => (

@@ -223,7 +223,7 @@ export async function sendJitoBundleTransactionMWA({
       onStatusUpdate?.('Authorizing with wallet...');
       
       const authResult = await mobileWallet.authorize({
-        cluster: CLUSTER,
+        cluster: CLUSTER || 'devnet',
         identity: {
           name: 'React Native dApp',
           uri: 'https://yourdapp.com',

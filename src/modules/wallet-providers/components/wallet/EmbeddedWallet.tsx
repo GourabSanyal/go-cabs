@@ -115,11 +115,11 @@ const EmbeddedWalletAuth: React.FC<EmbeddedWalletAuthProps> = ({
     try {
       const authorizationResult = await transact(async (wallet: Web3MobileWallet) => {
         return await wallet.authorize({
-          chain: 'solana:mainnet',
+          chain: 'solana:devnet',
           identity: APP_IDENTITY,
           sign_in_payload: {
             domain: 'solanaappkit.com',
-            statement: 'You are signing in to Solana App Kit',
+            statement: 'You are signing in to Solana App Kit (Devnet)',
             uri: 'https://solanaappkit.com',
           },
         });

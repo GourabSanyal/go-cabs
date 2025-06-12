@@ -917,7 +917,7 @@ export class TransactionService {
           
           // Authorize with the wallet
           const authResult = await wallet.authorize({
-            cluster: CLUSTER || 'mainnet-beta',
+            cluster: CLUSTER,
             identity: {
               name: 'Solana App Kit',
               uri: 'https://solanaappkit.com',

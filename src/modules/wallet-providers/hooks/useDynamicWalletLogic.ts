@@ -110,8 +110,8 @@ export function useDynamicWalletLogic() {
           // Create with more explicit parameters for Solana
           const newWallet = await client.wallets.embedded.createWallet({
             chain: 'Sol',
-            network: 'mainnet', // or 'devnet' based on your needs
-            chainId: 'mainnet-beta', // Explicit chain ID for Solana
+            network: 'devnet', // Changed to devnet
+            chainId: 'devnet', // Changed to devnet
             chainName: 'Solana', // Chain name
           });
           
@@ -138,8 +138,8 @@ export function useDynamicWalletLogic() {
               setStatusMessage?.('Retrying with explicit chain parameters...');
               const retryWallet = await client.wallets.embedded.createWallet({
                 chain: 'Sol',
-                network: 'mainnet',
-                chainId: 'mainnet-beta', // Try explicit chainId for Solana
+                network: 'devnet',
+                chainId: 'devnet', // Changed to devnet
               });
               
               if (retryWallet && retryWallet.address) {
@@ -247,7 +247,7 @@ export function useDynamicWalletLogic() {
             // Wallet settings
             client.settings.set('walletConnectorsPriorityOrder', ['dynamic_embedded_wallet']);
             client.settings.set('defaultChain', 'Sol');
-            client.settings.set('defaultNetwork', 'mainnet');
+            client.settings.set('defaultNetwork', 'devnet');
             
             console.log('Disabled Dynamic transaction UI popups and set wallet priority');
           } catch (settingsError) {
