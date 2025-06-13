@@ -14,6 +14,7 @@ import {dummyProfileData} from '@/shared/mocks/profileInfoData';
 import {tweetsData} from '@/shared/mocks/tweets';
 import {allposts} from '@/shared/mocks/posts';
 import {dummyData} from '@/shared/mocks/users';
+import { activeNetwork } from './network';
 
 /** Extended config for each auth provider */
 export interface PrivyConfig {
@@ -98,7 +99,7 @@ export const DefaultTransactionConfig: TransactionProviderConfig = {
     high: 100000000,
     'very-high': 2000000000,
   },
-  network: 'devnet',
+  network: activeNetwork.cluster,
   defaultFeeTier: ''
 };
 

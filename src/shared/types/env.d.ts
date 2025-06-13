@@ -24,4 +24,13 @@ declare module '@env' {
   export const OPENAI_API_KEY: string;
   export const MOONPAY_API_KEY: string;
   export const COMMISSION_WALLET: string;
+
+  // Solana Network Configuration
+  export const SOLANA_CLUSTER: 'mainnet-beta' | 'devnet' | 'testnet';
+  export const MAINNET_RPC_URL: string;
+  export const MAINNET_WS_URL: string;
+  export const DEVNET_RPC_URL: string;
+  export const DEVNET_WS_URL: string;
+  export const TESTNET_RPC_URL: string;
+  export const TESTNET_WS_URL: string;
 }
