@@ -12,6 +12,7 @@ import { useAppNavigation } from '@/shared/hooks/useAppNavigation';
 import EmbeddedWalletAuth from '@/modules/wallet-providers/components/wallet/EmbeddedWallet';
 import TurnkeyWalletAuth from '@/modules/wallet-providers/components/turnkey/TurnkeyWallet';
 import MobileWalletAdapter from '@/modules/wallet-providers/components/mobile-wallet-adapter/MobileWalletAdapter';
+import PhantomWalletAdapter from '@/modules/wallet-providers/components/phantom/PhantomWalletAdapter';
 import { loginSuccess } from '@/shared/state/auth/reducer';
 import { RootState } from '@/shared/state/store';
 import { useCustomization } from '@/shared/config/CustomizationProvider';
@@ -521,6 +522,11 @@ export default function LoginScreen() {
     }
   };
 
+  const handleTransactionSigned = (signature: string) => {
+    console.log('Transaction signed with signature:', signature);
+    Alert.alert('Success', `Transaction signed! Signature: ${signature.slice(0, 10)}...`);
+  };
+
   const renderAuthComponent = () => {
     switch (authConfig.provider) {
       case 'turnkey':
@@ -532,6 +538,9 @@ export default function LoginScreen() {
           <>
             {/* Mobile Wallet Adapter for Android - shows individual wallet buttons */}
             <MobileWalletAdapter onWalletConnected={handleWalletConnected} />
+            
+            {/* Phantom Wallet Adapter for iOS */}
+            <PhantomWalletAdapter onTransactionSigned={handleTransactionSigned} />
             
             {/* Standard embedded wallet auth */}
             <EmbeddedWalletAuth onWalletConnected={handleWalletConnected} />
