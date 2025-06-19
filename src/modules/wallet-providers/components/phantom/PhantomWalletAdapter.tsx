@@ -15,9 +15,12 @@ import {
   LAMPORTS_PER_SOL,
   VersionedTransaction,
 } from '@solana/web3.js';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/shared/state/store/store';
+import { setPhantomConnection, disconnectPhantom } from '@/shared/state/wallet/reducer';
+import type { AppDispatch } from '@/shared/state/store/store';
 import nacl from 'tweetnacl';
 import bs58 from 'bs58';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icons from '@/assets/svgs';
 import styles from '@/screens/Common/login-screen/LoginScreen.styles';
 import {activeNetwork, getNetworkEndpoint} from '@/shared/config/network';
@@ -26,21 +29,23 @@ interface PhantomWalletAdapterProps {
   onTransactionSigned: (signature: string) => void;
 }
 
-// Storage keys for persistence
-const STORAGE_KEYS = {
-  PHANTOM_SESSION: 'phantom_session',
-  PHANTOM_WALLET_ADDRESS: 'phantom_wallet_address',
-  PHANTOM_SESSION_DATA: 'phantom_session_data',
-  PHANTOM_SHARED_SECRET: 'phantom_shared_secret',
-};
-
 const PhantomWalletAdapter: React.FC<PhantomWalletAdapterProps> = ({
   onTransactionSigned,
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { isConnected, sessionData } = useSelector((state: RootState) => {
+    console.log('Redux State:', state);
+    const phantomState = state?.wallet?.phantom || {
+      isConnected: false,
+      sessionData: null
+    };
+    console.log('Phantom State:', phantomState);
+    return phantomState;
+  });
+  
   const [dappKeyPair] = useState(() => nacl.box.keyPair());
   const [sharedSecret, setSharedSecret] = useState<Uint8Array | null>(null);
   const [session, setSession] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [phantomSessionData, setPhantomSessionData] = useState<any>(null);
   const [isSigning, setIsSigning] = useState(false);
@@ -49,85 +54,46 @@ const PhantomWalletAdapter: React.FC<PhantomWalletAdapterProps> = ({
   const onConnectRedirectLink = 'gocabs://onConnect';
   const onSignTransactionRedirectLink = 'gocabs://onSignTransaction';
 
-  // Load persisted state on component mount
+  // Debug logging for state changes
   useEffect(() => {
-    const loadPersistedState = async () => {
-      try {
-        const [
-          savedSession,
-          savedWalletAddress,
-          savedSessionData,
-          savedSharedSecret,
-        ] = await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEYS.PHANTOM_SESSION),
-          AsyncStorage.getItem(STORAGE_KEYS.PHANTOM_WALLET_ADDRESS),
-          AsyncStorage.getItem(STORAGE_KEYS.PHANTOM_SESSION_DATA),
-          AsyncStorage.getItem(STORAGE_KEYS.PHANTOM_SHARED_SECRET),
-        ]);
+    console.log('Component State:', {
+      isConnected,
+      hasSessionData: !!sessionData,
+      hasSharedSecret: !!sharedSecret,
+      hasSession: !!session,
+      hasWalletAddress: !!walletAddress,
+      hasPhantomSessionData: !!phantomSessionData,
+    });
+  }, [isConnected, sessionData, sharedSecret, session, walletAddress, phantomSessionData]);
 
-        if (savedSession && savedWalletAddress && savedSharedSecret) {
-          setSession(savedSession);
-          setWalletAddress(savedWalletAddress);
-          setPhantomSessionData(
-            savedSessionData ? JSON.parse(savedSessionData) : null,
-          );
-          setSharedSecret(new Uint8Array(JSON.parse(savedSharedSecret)));
-          setIsConnected(true);
-        }
-      } catch (error) {
-        console.error('Failed to restore Phantom state:', error);
-      }
-    };
-
-    loadPersistedState();
-  }, []);
-
-  // Save state when it changes
-  const saveState = async (
-    newSession: string,
-    newWalletAddress: string,
-    newSessionData: any,
-    newSharedSecret: Uint8Array,
-  ) => {
-    try {
-      await Promise.all([
-        AsyncStorage.setItem(STORAGE_KEYS.PHANTOM_SESSION, newSession),
-        AsyncStorage.setItem(
-          STORAGE_KEYS.PHANTOM_WALLET_ADDRESS,
-          newWalletAddress,
-        ),
-        AsyncStorage.setItem(
-          STORAGE_KEYS.PHANTOM_SESSION_DATA,
-          JSON.stringify(newSessionData),
-        ),
-        AsyncStorage.setItem(
-          STORAGE_KEYS.PHANTOM_SHARED_SECRET,
-          JSON.stringify(Array.from(newSharedSecret)),
-        ),
-      ]);
-    } catch (error) {
-      console.error('Failed to save Phantom state:', error);
+  // Load persisted state from Redux on component mount and when sessionData changes
+  useEffect(() => {
+    if (sessionData) {
+      console.log('Setting local state from sessionData:', sessionData);
+      setSession(sessionData.session);
+      setWalletAddress(sessionData.walletAddress);
+      setPhantomSessionData(sessionData.sessionData);
+      setSharedSecret(new Uint8Array(sessionData.sharedSecret));
     }
-  };
+  }, [sessionData]);
 
-  // Clear persisted state
-  const clearPersistedState = async () => {
-    try {
-      await Promise.all([
-        AsyncStorage.removeItem(STORAGE_KEYS.PHANTOM_SESSION),
-        AsyncStorage.removeItem(STORAGE_KEYS.PHANTOM_WALLET_ADDRESS),
-        AsyncStorage.removeItem(STORAGE_KEYS.PHANTOM_SESSION_DATA),
-        AsyncStorage.removeItem(STORAGE_KEYS.PHANTOM_SHARED_SECRET),
-      ]);
-    } catch (error) {
-      console.error('Failed to clear Phantom state:', error);
+  // Synchronize local state with Redux state
+  useEffect(() => {
+    console.log('Connection state changed:', isConnected);
+    if (!isConnected) {
+      // Clear local state when disconnected in Redux
+      setSession(null);
+      setWalletAddress(null);
+      setPhantomSessionData(null);
+      setSharedSecret(null);
     }
-  };
+  }, [isConnected]);
 
   useEffect(() => {
     // Handle deep linking for both connect and sign transaction responses
     const handleDeepLink = async ({url}: {url: string}) => {
       if (url.startsWith('gocabs://onConnect')) {
+        console.log('Received connect callback:', url);
         const urlObj = new URL(url);
         const params = urlObj.searchParams;
         const phantomPubKey = params.get('phantom_encryption_public_key');
@@ -153,25 +119,29 @@ const PhantomWalletAdapter: React.FC<PhantomWalletAdapterProps> = ({
             if (decryptedData) {
               const decoded = new TextDecoder().decode(decryptedData);
               const connectData = JSON.parse(decoded);
-              // Save session data to state
+              console.log('Connection data:', connectData);
+              
+              // Save session data to local state
               setPhantomSessionData(connectData);
               setWalletAddress(connectData.public_key);
               setSession(connectData.session);
-              setIsConnected(true);
 
-              // Save state to AsyncStorage for persistence
-              await saveState(
-                connectData.session,
-                connectData.public_key,
-                connectData,
-                secret,
-              );
+              // Save state to Redux for persistence
+              const connectionData = {
+                session: connectData.session,
+                walletAddress: connectData.public_key,
+                sessionData: connectData,
+                sharedSecret: Array.from(secret),
+              };
+              console.log('Dispatching connection data:', connectionData);
+              dispatch(setPhantomConnection(connectionData));
 
               Alert.alert('Success', 'Connected to Phantom wallet!');
             } else {
               Alert.alert('Error', 'Failed to decrypt connection response');
             }
           } catch (error) {
+            console.error('Connection error:', error);
             Alert.alert('Error', 'Failed to connect to Phantom wallet');
           }
         } else {
@@ -314,7 +284,7 @@ const PhantomWalletAdapter: React.FC<PhantomWalletAdapterProps> = ({
     return () => {
       subscription?.remove();
     };
-  }, [sharedSecret, onTransactionSigned, dappKeyPair]);
+  }, [sharedSecret, onTransactionSigned, dappKeyPair, dispatch]);
 
   const connectPhantomWallet = async () => {
     try {
@@ -485,17 +455,17 @@ const PhantomWalletAdapter: React.FC<PhantomWalletAdapterProps> = ({
     }
   };
 
-  const disconnectPhantom = () => {
+  const handleDisconnectPhantom = () => {
+    console.log('Disconnecting Phantom wallet');
     // Reset all connection-related state
     setSharedSecret(null);
     setSession(null);
-    setIsConnected(false);
     setWalletAddress(null);
     setPhantomSessionData(null);
     setIsSigning(false);
 
-    // Clear persisted state
-    clearPersistedState();
+    // Clear persisted state in Redux
+    dispatch(disconnectPhantom());
 
     Alert.alert(
       'Disconnected',
@@ -509,19 +479,12 @@ const PhantomWalletAdapter: React.FC<PhantomWalletAdapterProps> = ({
     return null; // Don't render on Android
   }
 
+  // Debug log before rendering
+  console.log('Rendering with state:', { isConnected, hasWallet: !!walletAddress });
+
   return (
     <View style={styles.mobileWalletContainer}>
-      {!isConnected ? (
-        <TouchableOpacity
-          style={styles.walletButton}
-          onPress={connectPhantomWallet}>
-          <View style={styles.buttonContent}>
-            <Icons.walletIcon width={24} height={24} />
-            <Text style={styles.buttonText}>Connect Phantom</Text>
-          </View>
-          <ArrowIcon />
-        </TouchableOpacity>
-      ) : (
+      {isConnected && walletAddress ? (
         <View style={{gap: 12}}>
           <TouchableOpacity
             style={[styles.walletButton, isSigning && {opacity: 0.7}]}
@@ -540,14 +503,23 @@ const PhantomWalletAdapter: React.FC<PhantomWalletAdapterProps> = ({
 
           <TouchableOpacity
             style={[styles.walletButton, {backgroundColor: '#ff4444'}]}
-            onPress={disconnectPhantom}>
+            onPress={handleDisconnectPhantom}>
             <View style={styles.buttonContent}>
-              <Icons.walletIcon width={24} height={24} />
               <Text style={styles.buttonText}>Disconnect Phantom</Text>
             </View>
             <ArrowIcon />
           </TouchableOpacity>
         </View>
+      ) : (
+        <TouchableOpacity
+          style={styles.walletButton}
+          onPress={connectPhantomWallet}>
+          <View style={styles.buttonContent}>
+            <Icons.walletIcon width={24} height={24} />
+            <Text style={styles.buttonText}>Connect Phantom</Text>
+          </View>
+          <ArrowIcon />
+        </TouchableOpacity>
       )}
 
       <Text

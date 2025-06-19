@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, Alert } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '@/shared/state/auth/reducer';
+import { RootState } from '@/shared/state/store/store';
 import Icons from '@/assets/svgs';
 import styles from '@/screens/Common/login-screen/LoginScreen.styles';
 import { activeNetwork, NetworkType } from '@/shared/config/network';
@@ -41,8 +42,23 @@ if (Platform.OS === 'android') {
 const MobileWalletAdapter: React.FC<MobileWalletAdapterProps> = ({ onWalletConnected }) => {
   const [connectedWallet, setConnectedWallet] = useState<{ address: string } | null>(null);
   const dispatch = useDispatch();
+  
+  // Check if Phantom is already connected with proper null checks
+  const phantomState = useSelector((state: RootState) => state?.wallet?.phantom) || {
+    isConnected: false,
+    sessionData: null
+  };
 
   const connectMobileWallet = async () => {
+    // If Phantom is already connected, show an alert and don't proceed
+    if (phantomState?.isConnected) {
+      Alert.alert(
+        'Wallet Already Connected',
+        'Please disconnect Phantom wallet before connecting a mobile wallet.'
+      );
+      return;
+    }
+
     if (Platform.OS !== 'android') {
       Alert.alert('Not Supported', 'Mobile Wallet Adapter is only available on Android devices');
       return;
@@ -117,6 +133,27 @@ const MobileWalletAdapter: React.FC<MobileWalletAdapterProps> = ({ onWalletConne
 
   if (Platform.OS !== 'android') {
     return null; // Don't render on iOS
+  }
+
+  // If Phantom is connected, show a disabled state
+  if (phantomState?.isConnected) {
+    return (
+      <View style={styles.mobileWalletContainer}>
+        <TouchableOpacity
+          style={[styles.walletButton, { opacity: 0.5 }]}
+          disabled={true}
+        >
+          <View style={styles.buttonContent}>
+            <Icons.walletIcon width={24} height={24} />
+            <Text style={styles.buttonText}>Mobile Wallet (Phantom Connected)</Text>
+          </View>
+          <ArrowIcon />
+        </TouchableOpacity>
+        <Text style={[styles.agreementText, { position: 'relative', marginTop: 12 }]}>
+          Please disconnect Phantom wallet to use mobile wallet.
+        </Text>
+      </View>
+    );
   }
 
   return (
