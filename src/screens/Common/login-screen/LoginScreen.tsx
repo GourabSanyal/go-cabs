@@ -14,7 +14,7 @@ import TurnkeyWalletAuth from '@/modules/wallet-providers/components/turnkey/Tur
 import MobileWalletAdapter from '@/modules/wallet-providers/components/mobile-wallet-adapter/MobileWalletAdapter';
 import PhantomWalletAdapter from '@/modules/wallet-providers/components/phantom/PhantomWalletAdapter';
 import { loginSuccess } from '@/shared/state/auth/reducer';
-import { RootState } from '@/shared/state/store';
+import { RootState } from '@/shared/state/store/store';
 import { useCustomization } from '@/shared/config/CustomizationProvider';
 import axios from 'axios';
 import { SERVER_URL } from '@env';

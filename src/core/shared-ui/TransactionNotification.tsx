@@ -10,7 +10,7 @@ import {
     Platform,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '@/shared/state/store';
+import { RootState } from '@/shared/state/store/store';
 import { clearNotification } from '@/shared/state/notification/reducer';
 import COLORS from '@/assets/colors';
 import TYPOGRAPHY from '@/assets/typography';

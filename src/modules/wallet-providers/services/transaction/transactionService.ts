@@ -11,7 +11,7 @@ import { getDynamicClient } from '../walletProviders/dynamic';
 import { useAppSelector } from '@/shared/hooks/useReduxHooks';
 import { Platform } from 'react-native';
 import { CLUSTER } from '@env';
-import { store } from '@/shared/state/store';
+import { store } from '@/shared/state/store/store';
 import { parseTransactionError, getSuccessMessage } from '@/shared/services/transactions';
 import { showSuccessNotification, showErrorNotification } from '@/shared/state/notification/reducer';
 import {

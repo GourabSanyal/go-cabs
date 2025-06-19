@@ -6,7 +6,7 @@ import { useAppNavigation } from '@/shared/hooks/useAppNavigation';
 import COLORS from '@/assets/colors';
 import Logo from '@/assets/svgs/logo.svg';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/shared/state/store';
+import { RootState } from '@/shared/state/store/store';
 import { getDynamicClient } from '@/modules/wallet-providers/services/walletProviders/dynamic';
 
 export default function IntroScreen() {

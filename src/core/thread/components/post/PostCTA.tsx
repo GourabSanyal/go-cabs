@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import type { ThreadPost, ThreadUser } from '../thread.types';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/shared/state/store';
+import { RootState } from '@/shared/state/store/store';
 import { Cluster, clusterApiUrl, Connection } from '@solana/web3.js';
 import { CLUSTER } from '@env';
 import { useWallet } from '@/modules/wallet-providers/hooks/useWallet';

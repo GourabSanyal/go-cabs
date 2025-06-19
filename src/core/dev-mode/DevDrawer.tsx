@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { navigationRef } from '@/shared/hooks/useAppNavigation';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/shared/state/store';
+import { RootState } from '@/shared/state/store/store';
 import COLORS from '@/assets/colors';
 import TYPOGRAPHY from '@/assets/typography';
 import NotificationTestPanel from './NotificationTestPanel';

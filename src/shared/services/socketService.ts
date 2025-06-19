@@ -3,7 +3,7 @@
  */
 import { io, Socket } from 'socket.io-client';
 import { SERVER_URL } from '@env';
-import { store } from '@/shared/state/store';
+import { store } from '@/shared/state/store/store';
 import { receiveMessage, incrementUnreadCount } from '@/shared/state/chat/slice';
 
 class SocketService {

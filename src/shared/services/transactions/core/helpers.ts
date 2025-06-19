@@ -1,4 +1,4 @@
-import { store } from '@/shared/state/store';
+import { store } from '@/shared/state/store/store';
 import { 
   PublicKey,
   Connection,
