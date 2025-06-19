@@ -60,7 +60,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/shared/navigation/RootNavigator';
 import { navigationRef } from './src/shared/hooks/useAppNavigation';
-import { store, persistor } from './src/shared/state/store';
+import { store, persistor } from './src/shared/state/store/store';
 import './src/shared/utils/polyfills';
 import COLORS from './src/assets/colors';
 import { View, ActivityIndicator, StatusBar } from 'react-native';
