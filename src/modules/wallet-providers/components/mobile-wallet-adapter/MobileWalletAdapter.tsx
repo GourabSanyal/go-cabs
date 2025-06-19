@@ -57,8 +57,8 @@ const MobileWalletAdapter: React.FC<MobileWalletAdapterProps> = ({ onWalletConne
     }
 
     const APP_IDENTITY = {
-      name: 'Solana App Kit',
-      uri: 'https://solanaappkit.com',
+      name: 'Go Cabs',
+      uri: 'https://gocabs.com',
       icon: 'favicon.ico',
     };
 
@@ -70,9 +70,9 @@ const MobileWalletAdapter: React.FC<MobileWalletAdapterProps> = ({ onWalletConne
           cluster: activeNetwork.cluster as NetworkType,
           identity: APP_IDENTITY,
           sign_in_payload: {
-            domain: 'solanaappkit.com',
-            statement: `You are signing in to Solana App Kit with Mobile Wallet (${activeNetwork.cluster})`,
-            uri: 'https://solanaappkit.com',
+            domain: 'gocabs.com',
+            statement: `You are signing in to Go Cabs with Mobile Wallet (${activeNetwork.cluster})`,
+            uri: 'https://gocabs.com',
           },
         });
       });
