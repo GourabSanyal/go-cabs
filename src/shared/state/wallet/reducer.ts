@@ -1,13 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface PhantomSessionData {
-  session: string;
-  walletAddress: string;
-  sessionData: any;
-  sharedSecret: number[]; // Store as array since we can't serialize Uint8Array
-}
-
-interface BackpackSessionData {
+interface WalletSessionData {
   session: string;
   walletAddress: string;
   sessionData: any;
@@ -17,11 +10,15 @@ interface BackpackSessionData {
 interface WalletState {
   phantom: {
     isConnected: boolean;
-    sessionData: PhantomSessionData | null;
+    sessionData: WalletSessionData | null;
   };
   backpack: {
     isConnected: boolean;
-    sessionData: BackpackSessionData | null;
+    sessionData: WalletSessionData | null;
+  };
+  solflare: {
+    isConnected: boolean;
+    sessionData: WalletSessionData | null;
   };
 }
 
@@ -34,52 +31,58 @@ const initialState: WalletState = {
     isConnected: false,
     sessionData: null,
   },
+  solflare: {
+    isConnected: false,
+    sessionData: null,
+  },
 };
 
 const walletSlice = createSlice({
   name: 'wallet',
   initialState,
   reducers: {
-    setPhantomConnection: (state, action: PayloadAction<PhantomSessionData>) => {
-      console.log('Setting Phantom connection with data:', action.payload);
-      state.phantom = {
-        isConnected: true, // Explicitly set to true when we have session data
-        sessionData: action.payload,
-      };
-      console.log('Updated state:', state.phantom);
+    setPhantomConnection: (state, action: PayloadAction<WalletSessionData>) => {
+      state.phantom.isConnected = true;
+      state.phantom.sessionData = action.payload;
     },
     disconnectPhantom: (state) => {
-      console.log('Disconnecting Phantom');
-      state.phantom = {
-        isConnected: false,
-        sessionData: null,
-      };
-      console.log('Updated state after disconnect:', state.phantom);
+      state.phantom.isConnected = false;
+      state.phantom.sessionData = null;
     },
-    setBackpackConnection: (state, action: PayloadAction<BackpackSessionData>) => {
-      console.log('Setting Backpack connection with data:', action.payload);
-      state.backpack = {
+    setBackpackConnection: (state, action: PayloadAction<WalletSessionData>) => {
+      state.backpack.isConnected = true;
+      state.backpack.sessionData = action.payload;
+    },
+    disconnectBackpack: (state) => {
+      state.backpack.isConnected = false;
+      state.backpack.sessionData = null;
+    },
+    setSolflareConnection: (state, action: PayloadAction<WalletSessionData>) => {
+      console.log('Setting Solflare connection with data:', action.payload);
+      state.solflare = {
         isConnected: true,
         sessionData: action.payload,
       };
-      console.log('Updated state:', state.backpack);
+      console.log('Updated Solflare state:', state.solflare);
     },
-    disconnectBackpack: (state) => {
-      console.log('Disconnecting Backpack');
-      state.backpack = {
+    disconnectSolflare: (state) => {
+      console.log('Disconnecting Solflare');
+      state.solflare = {
         isConnected: false,
         sessionData: null,
       };
-      console.log('Updated state after disconnect:', state.backpack);
+      console.log('Updated Solflare state after disconnect:', state.solflare);
     },
   },
 });
 
-export const { 
-  setPhantomConnection, 
+export const {
+  setPhantomConnection,
   disconnectPhantom,
   setBackpackConnection,
   disconnectBackpack,
+  setSolflareConnection,
+  disconnectSolflare,
 } = walletSlice.actions;
 
 export default walletSlice.reducer; 
