@@ -9,11 +9,12 @@ import Icons from '@/assets/svgs/index';
 import styles from '@/screens/Common/login-screen/LoginScreen.styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAppNavigation } from '@/shared/hooks/useAppNavigation';
-import EmbeddedWalletAuth from '@/modules/wallet-providers/components/wallet/EmbeddedWallet';
+
 import TurnkeyWalletAuth from '@/modules/wallet-providers/components/turnkey/TurnkeyWallet';
 import MobileWalletAdapter from '@/modules/wallet-providers/components/mobile-wallet-adapter/MobileWalletAdapter';
 import PhantomWalletAdapter from '@/modules/wallet-providers/components/phantom/PhantomWalletAdapter';
 import BackpackWalletAdapter from '@/modules/wallet-providers/components/backpack/BackpackWalletAdapter';
+import SolflareWalletAdapter from '@/modules/wallet-providers/components/solflare/SolflareWalletAdapter';
 import { loginSuccess } from '@/shared/state/auth/reducer';
 import { RootState } from '@/shared/state/store/store';
 import { useCustomization } from '@/shared/config/CustomizationProvider';
@@ -553,9 +554,11 @@ export default function LoginScreen() {
 
             {/* Backpack Wallet Adapter for iOS */}
             <BackpackWalletAdapter onWalletConnected={handleWalletConnected} />
+
+            {/* Solflare Wallet Adapter for iOS */}
+            <SolflareWalletAdapter onTransactionSigned={handleTransactionSigned} />
             
-            {/* Standard embedded wallet auth */}
-            <EmbeddedWalletAuth onWalletConnected={handleWalletConnected} />
+
           </>
         );
     }
