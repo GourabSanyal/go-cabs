@@ -7,15 +7,30 @@ interface PhantomSessionData {
   sharedSecret: number[]; // Store as array since we can't serialize Uint8Array
 }
 
+interface BackpackSessionData {
+  session: string;
+  walletAddress: string;
+  sessionData: any;
+  sharedSecret: number[];
+}
+
 interface WalletState {
   phantom: {
     isConnected: boolean;
     sessionData: PhantomSessionData | null;
   };
+  backpack: {
+    isConnected: boolean;
+    sessionData: BackpackSessionData | null;
+  };
 }
 
 const initialState: WalletState = {
   phantom: {
+    isConnected: false,
+    sessionData: null,
+  },
+  backpack: {
     isConnected: false,
     sessionData: null,
   },
@@ -41,8 +56,30 @@ const walletSlice = createSlice({
       };
       console.log('Updated state after disconnect:', state.phantom);
     },
+    setBackpackConnection: (state, action: PayloadAction<BackpackSessionData>) => {
+      console.log('Setting Backpack connection with data:', action.payload);
+      state.backpack = {
+        isConnected: true,
+        sessionData: action.payload,
+      };
+      console.log('Updated state:', state.backpack);
+    },
+    disconnectBackpack: (state) => {
+      console.log('Disconnecting Backpack');
+      state.backpack = {
+        isConnected: false,
+        sessionData: null,
+      };
+      console.log('Updated state after disconnect:', state.backpack);
+    },
   },
 });
 
-export const { setPhantomConnection, disconnectPhantom } = walletSlice.actions;
+export const { 
+  setPhantomConnection, 
+  disconnectPhantom,
+  setBackpackConnection,
+  disconnectBackpack,
+} = walletSlice.actions;
+
 export default walletSlice.reducer; 
