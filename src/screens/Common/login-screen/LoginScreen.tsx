@@ -13,6 +13,7 @@ import EmbeddedWalletAuth from '@/modules/wallet-providers/components/wallet/Emb
 import TurnkeyWalletAuth from '@/modules/wallet-providers/components/turnkey/TurnkeyWallet';
 import MobileWalletAdapter from '@/modules/wallet-providers/components/mobile-wallet-adapter/MobileWalletAdapter';
 import PhantomWalletAdapter from '@/modules/wallet-providers/components/phantom/PhantomWalletAdapter';
+import BackpackWalletAdapter from '@/modules/wallet-providers/components/backpack/BackpackWalletAdapter';
 import { loginSuccess } from '@/shared/state/auth/reducer';
 import { RootState } from '@/shared/state/store/store';
 import { useCustomization } from '@/shared/config/CustomizationProvider';
@@ -246,12 +247,18 @@ export default function LoginScreen() {
 
     // If already logged in, navigate to MainTabs immediately
     if (isLoggedIn) {
-      console.log('[LoginScreen] User already logged in, navigating to MainTabs');
-      // Use navigation.reset to avoid having LoginScreen in the navigation stack
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'MainTabs' }],
-      });
+      // Get the backpack connection state
+      const backpackState = useSelector((state: RootState) => state.wallet.backpack);
+      const isBackpackConnected = backpackState?.isConnected;
+
+      // Only navigate if we're not in the Backpack flow
+      if (!isBackpackConnected) {
+        console.log('[LoginScreen] User already logged in, navigating to MainTabs');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MainTabs' }],
+        });
+      }
     }
   }, [isLoggedIn, navigation]);
 
@@ -504,14 +511,15 @@ export default function LoginScreen() {
         }
       }
 
-      // Proceed with login regardless of whether user creation succeeded
-      // This way, existing users can still log in
-      dispatch(
-        loginSuccess({
-          provider: info.provider as 'privy' | 'dynamic' | 'turnkey' | 'mwa',
-          address: info.address,
-        }),
-      );
+      // Only dispatch loginSuccess if it's not Backpack wallet
+      if (info.provider !== 'backpack') {
+        dispatch(
+          loginSuccess({
+            provider: info.provider as 'privy' | 'dynamic' | 'turnkey' | 'mwa',
+            address: info.address,
+          }),
+        );
+      }
     } catch (error) {
       console.error('Error handling wallet connection:', error);
       Alert.alert(
@@ -520,6 +528,7 @@ export default function LoginScreen() {
       );
       setIsAuthenticating(false);
     }
+    setIsAuthenticating(false);
   };
 
   const handleTransactionSigned = (signature: string) => {
@@ -541,6 +550,9 @@ export default function LoginScreen() {
             
             {/* Phantom Wallet Adapter for iOS */}
             <PhantomWalletAdapter onTransactionSigned={handleTransactionSigned} />
+
+            {/* Backpack Wallet Adapter for iOS */}
+            <BackpackWalletAdapter onWalletConnected={handleWalletConnected} />
             
             {/* Standard embedded wallet auth */}
             <EmbeddedWalletAuth onWalletConnected={handleWalletConnected} />
