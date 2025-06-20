@@ -81,10 +81,10 @@ import DevDrawer from './src/core/dev-mode/DevDrawer';
 
 // Import Environment Error provider and new components
 import DevModeStatusBar from './src/core/dev-mode/DevModeStatusBar';
-import { DevModeProvider, useDevMode } from '@/shared/context/DevModeContext';
-import { DefaultCustomizationConfig } from '@/shared/config';
-import { CustomizationProvider } from '@/shared/config/CustomizationProvider';
-import { EnvErrorProvider, useEnvError } from '@/shared/context/EnvErrorContext';
+import { DevModeProvider, useDevMode } from './src/shared/context/DevModeContext';
+import { DefaultCustomizationConfig } from './src/shared/config';
+import { CustomizationProvider } from './src/shared/config/CustomizationProvider';
+import { EnvErrorProvider, useEnvError } from './src/shared/context/EnvErrorContext';
 import { EnvWarningDrawer } from './src/core/dev-mode';
 
 // Import notification service
@@ -222,7 +222,7 @@ export default function App() {
                       </NavigationContainer>
                       {getDynamicWebView()}
                       <GlobalUIElements />
-                      <PrivyElements />
+                      {PrivyElements ? <PrivyElements /> : null}
                     </PrivyProvider>
                   ) : config.auth.provider === 'turnkey' ? (
                     <TurnkeyProvider config={turnkeySessionConfig}>
