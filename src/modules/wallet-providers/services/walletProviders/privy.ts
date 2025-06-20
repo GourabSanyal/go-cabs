@@ -1,19 +1,19 @@
 // File: /src/services/walletProviders/privy.ts
 import {
-  useLogin,
+  useLoginWithEmail,
+  useLoginWithSMS,
   usePrivy,
   useEmbeddedSolanaWallet,
   useRecoverEmbeddedWallet,
   isNotCreated,
   needsRecovery,
-  useLoginWithOAuth,
 } from '@privy-io/expo';
 import {useCallback} from 'react';
 import {useCustomization} from '@/shared/config/CustomizationProvider';
 
 export function usePrivyWalletLogic() {
-  const {login} = useLogin();
-  const {login: loginWithOAuth} = useLoginWithOAuth();
+  const emailAuth = useLoginWithEmail();
+  const smsAuth = useLoginWithSMS();
   const {user, isReady, logout} = usePrivy();
   const solanaWallet = useEmbeddedSolanaWallet();
   const {recover} = useRecoverEmbeddedWallet();
@@ -38,35 +38,19 @@ export function usePrivyWalletLogic() {
       try {
         setStatusMessage?.(`Connecting with privy via ${loginMethod}...`);
         
-        // For Apple and Google, use the OAuth method directly 
-        if (loginMethod === 'apple' || loginMethod === 'google') {
-          const result = await loginWithOAuth({ 
-            provider: loginMethod,
-            // For Apple, don't set isLegacyAppleIosBehaviorEnabled to use native flow
-          });
-          
-          console.log(`Privy ${loginMethod} login result:`, result);
-          
-          if (!result) {
-            const errorMsg = `${loginMethod} authentication did not complete successfully`;
-            console.error(errorMsg);
-            throw new Error(errorMsg);
-          }
-          
-          if (result) {
-            setStatusMessage?.(`Connected via ${loginMethod}`);
-            return result;
-          }
+        // For email or sms, call the respective hooks
+        if (loginMethod === 'email') {
+          // Start OTP flow – UI for code entry should follow
+          await emailAuth.sendCode({ email: '' as any });
+          // You'd normally wait for user input, then:
+          // const { user: authUser } = await emailAuth.loginWithCode({ email, code });
+          return;
+        } else if (loginMethod === 'sms') {
+          await smsAuth.sendCode({ phone: '' as any });
+          // const { user: authUser } = await smsAuth.loginWithCode({ phone, code });
+          return;
         } else {
-          // For email and other methods, use the regular login 
-          const session = await login({
-            loginMethods: [loginMethod],
-            appearance: {logo: ''},
-          });
-          if (session?.user) {
-            setStatusMessage?.(`Connected user: ${session.user.id}`);
-            return session;
-          }
+          throw new Error(`Unsupported login method: ${loginMethod}`);
         }
       } catch (error: any) {
         console.error('Privy Login Error:', error);
@@ -74,7 +58,7 @@ export function usePrivyWalletLogic() {
         throw error; // Re-throw to allow component-level error handling
       }
     },
-    [user, login, loginWithOAuth],
+    [user, emailAuth, smsAuth],
   );
 
   const monitorSolanaWallet = useCallback(
