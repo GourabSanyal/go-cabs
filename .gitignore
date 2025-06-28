@@ -85,7 +85,7 @@ yarn-error.log
 
 # Project specific
 .cursor/rules/solana-app-kit-coding-rules.mdc
-app.json
+# app.json
 eas.json
 create-solana-app/
 
