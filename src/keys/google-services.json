@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "1051726678978",
+    "project_id": "gocabs-9fc98",
+    "storage_bucket": "gocabs-9fc98.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1051726678978:android:0279b74402e5d8b57ea45b",
+        "android_client_info": {
+          "package_name": "com.gocabs"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1051726678978-0bka6rb38an84slaf74otpqo06pc79qv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gocabs",
+            "certificate_hash": "5113b11e2647a82caf057ab3fb59cefd7ea2470f"
+          }
+        },
+        {
+          "client_id": "1051726678978-iel21am2itr768232h6297pfvodufaj6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gocabs",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "1051726678978-k7sh78tsumff6n9o6qjklb7i08mc1chb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gocabs",
+            "certificate_hash": "03478e3a27339bfc0d88c52da0898f3ba8740241"
+          }
+        },
+        {
+          "client_id": "1051726678978-go98d67mjjhi39t7326u3gbcpqn6sncb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBd-AZ5dowS6AJXagjTIPqF0cC60hRbFh4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1051726678978-go98d67mjjhi39t7326u3gbcpqn6sncb.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1051726678978-24hqnti26dofdn4g4b5bkm5cms4ttbvs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.gocabs.com"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
