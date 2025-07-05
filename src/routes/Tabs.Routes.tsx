@@ -6,6 +6,10 @@ import {backgroundPrimary, primaryColor} from '@/theme/colors';
 import {heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {Platform} from 'react-native';
 import {House, LayoutGrid, Earth, User} from 'lucide-react-native';
+import HomeNavigator from './Home.Routes';
+import ServicesNavigator from './Services.Routes';
+import CommunityNavigator from './Community.Routes';
+import ProfileNavigator from './Profile.Routes';
 
 const isIOS = Platform.OS === 'ios';
 
@@ -34,7 +38,7 @@ export default function TabsNavigator() {
             tabBarIcon: ({color}) => <House color={color} />,
           }}
           name="Home"
-          component={Home}
+          component={HomeNavigator}
         />
         <Tabs.Screen
           options={{
@@ -42,7 +46,7 @@ export default function TabsNavigator() {
             tabBarIcon: ({color}) => <LayoutGrid color={color} />,
           }}
           name="Services"
-          component={Home}
+          component={ServicesNavigator}
         />
         <Tabs.Screen
           options={{
@@ -50,7 +54,7 @@ export default function TabsNavigator() {
             tabBarIcon: ({color}) => <Earth color={color} />,
           }}
           name="Community"
-          component={Home}
+          component={CommunityNavigator}
         />
         <Tabs.Screen
           options={{
@@ -58,13 +62,9 @@ export default function TabsNavigator() {
             tabBarIcon: ({color}) => <User color={color} />,
           }}
           name="Profile"
-          component={Home}
+          component={ProfileNavigator}
         />
       </Tabs.Navigator>
     </>
   );
-}
-
-function Home() {
-  return <View style={{flex: 1}} />;
 }
