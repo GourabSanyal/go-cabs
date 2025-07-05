@@ -15,7 +15,7 @@ import {
   where,
 } from '@react-native-firebase/firestore';
 import GoogleIcon from '../../assets/images/icons/google.svg';
-// import {storage} from '@/utils/mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function GoogleAuth() {
   const db = getFirestore();
@@ -45,9 +45,9 @@ export default function GoogleAuth() {
         throw new Error('No ID token & name found');
       }
 
-      // storage.set('idToken', idToken);
-      // storage.set('name', name);
-      // storage.set('userId', userId);
+      await AsyncStorage.setItem('idToken', idToken);
+      await AsyncStorage.setItem('name', name);
+      await AsyncStorage.setItem('userId', userId);
 
       const existingUser = await getDocs(
         query(collection(db, 'users'), where('email', '==', email)),
