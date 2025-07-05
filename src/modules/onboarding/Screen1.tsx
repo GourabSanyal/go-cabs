@@ -22,10 +22,13 @@ const Screen1 = () => {
           Choose eco-friendly options for a {'\n'}cleaner future
         </Text>
         <TouchableOpacity
+          activeOpacity={0.95}
           onPress={() => navigation.navigate('Screen2' as never)}>
           <NextIcon style={commonOnboardStyles.nextBtn} />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.95}
+          onPress={() => navigation.navigate('Tabs' as never)}>
           <Text style={commonOnboardStyles.link}>Skip</Text>
         </TouchableOpacity>
       </Layout>

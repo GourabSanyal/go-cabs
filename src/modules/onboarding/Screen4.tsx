@@ -24,19 +24,11 @@ const Screen4 = () => {
           Pay securely using crypto wallets, {'\n'} cards, or UPI
         </Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate('UserScreens' as never)}>
+          activeOpacity={0.95}
+          onPress={() => navigation.navigate('Tabs' as never)}>
           <NextIcon style={commonOnboardStyles.nextBtn} />
         </TouchableOpacity>
         <Margin margin={20} />
-        <CustomButton
-          title="Procced with driver flow"
-          onPress={() => navigation.navigate('DriverScreens' as never)}
-          status="primary"
-          size="small"
-        />
-        <TouchableOpacity>
-          <Text style={commonOnboardStyles.link}>Skip</Text>
-        </TouchableOpacity>
       </Layout>
     </View>
   );

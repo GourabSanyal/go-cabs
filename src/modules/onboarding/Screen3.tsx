@@ -22,10 +22,13 @@ const Screen3 = () => {
           Book rides, share bikes, rent taxis,{'\n'} or send packages
         </Text>
         <TouchableOpacity
+          activeOpacity={0.95}
           onPress={() => navigation.navigate('Screen4' as never)}>
           <NextIcon style={commonOnboardStyles.nextBtn} />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.95}
+          onPress={() => navigation.navigate('Tabs' as never)}>
           <Text style={commonOnboardStyles.link}>Skip</Text>
         </TouchableOpacity>
       </Layout>
