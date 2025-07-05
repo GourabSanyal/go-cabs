@@ -9,6 +9,7 @@ import Margin from '../../components/Margin';
 import GoogleIcon from '../../../assets/images/icons/google.svg';
 import FacebookIcon from '../../../assets/images/icons/facebook.svg';
 import AppleIcon from '../../../assets/images/icons/apple.svg';
+import GoogleAuth from '@/components/GoogleAuth';
 
 const Login = () => {
   const navigation = useNavigation();
@@ -41,13 +42,11 @@ const Login = () => {
       </View>
       <Text style={[styles.h2_bold, {color: primaryColor}]}>Log In with</Text>
       <View style={styles.social}>
-        <TouchableOpacity>
-          <GoogleIcon width={50} height={50} />
-        </TouchableOpacity>
-        <TouchableOpacity>
+        <GoogleAuth />
+        <TouchableOpacity activeOpacity={0.95}>
           <FacebookIcon width={50} height={50} />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.95}>
           <AppleIcon width={50} height={50} />
         </TouchableOpacity>
       </View>

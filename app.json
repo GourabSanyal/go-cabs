@@ -10,6 +10,7 @@
       "**/*"
     ],
     "android": {
+      "googleServicesFile": "./src/keys/google-services.json",
       "package": "com.gocabs",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
@@ -19,12 +20,16 @@
       ]
     },
     "ios": {
+      "googleServicesFile": "./src/keys/GoogleService-Info.plist",
       "bundleIdentifier": "com.gocabs",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "We need access to your photos to let you pick images."
       }
     },
     "plugins": [
+      "@react-native-google-signin/google-signin",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
       "expo-secure-store",
       [
         "expo-image-picker",

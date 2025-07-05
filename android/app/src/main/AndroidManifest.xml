@@ -25,10 +25,8 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="gocabs"/>
-        <data android:scheme="com.gocabs"/>
-        <data android:scheme="exp+gocabs"/>
         <data android:scheme="solanaappkit"/>
+        <data android:scheme="com.gocabs"/>
         <data android:scheme="exp+com.gocabs"/>
       </intent-filter>
     </activity>
