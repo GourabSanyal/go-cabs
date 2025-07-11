@@ -1,10 +1,9 @@
 import {Image, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import {Layout, Text} from '@ui-kitten/components';
-import {useNavigation} from '@react-navigation/native';
+import {StackActions, useNavigation} from '@react-navigation/native';
 import {commonOnboardStyles} from './styles';
 import NextIcon from '../../../assets/images/onboardin/4-next-button.svg';
-import CustomButton from '../../components/CustomButton';
 import Margin from '../../components/Margin';
 
 const Screen4 = () => {
@@ -25,7 +24,9 @@ const Screen4 = () => {
         </Text>
         <TouchableOpacity
           activeOpacity={0.95}
-          onPress={() => navigation.navigate('Tabs' as never)}>
+          onPress={() => navigation.dispatch(
+            StackActions.replace("Tabs")
+          )}>
           <NextIcon style={commonOnboardStyles.nextBtn} />
         </TouchableOpacity>
         <Margin margin={20} />

@@ -1,7 +1,7 @@
 import {View} from 'react-native';
 import React from 'react';
 import {Text} from '@ui-kitten/components';
-import {useNavigation} from '@react-navigation/native';
+import {StackActions, useNavigation} from '@react-navigation/native';
 import {styles} from './styles';
 import OTPInput from './OtpInput';
 import CustomButton from '../../components/CustomButton';
@@ -28,7 +28,9 @@ const VerifyOtp = () => {
       <CustomButton
         title="Verify OTP"
         onPress={() =>
-          navigation.navigate('OnboardingScreens', {screen: 'Screen1'})
+          navigation.dispatch(
+            StackActions.replace('OnboardingScreens', {screen: 'Screen1'}),
+          )
         }
         status="primary"
         size="medium"
