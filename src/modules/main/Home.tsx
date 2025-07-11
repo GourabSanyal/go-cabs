@@ -5,12 +5,13 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import React, {useState} from 'react';
 import HomeBanner from './components/HomeBanner';
 import Margin from '../../components/Margin';
 import LocationInput from '../../components/LocationInput';
-import {useNavigation} from '@react-navigation/native';
+import {StackActions, useNavigation} from '@react-navigation/native';
 
 interface SelectedLocation {
   address: string;
@@ -32,6 +33,24 @@ const Home = () => {
     useState<SelectedLocation | null>(null);
   const [isPickupActive, setIsPickupActive] = useState(false);
   const [isDropOffActive, setIsDropOffActive] = useState(false);
+
+  const handleGoToBooking = () => {
+    if (!pickupLocation || !dropOffLocation) {
+      Alert.alert(
+        'Missing Information',
+        'Please select both pickup and drop-off locations.',
+      );
+      return;
+    }
+    navigation.dispatch(
+      StackActions.push('BookRide', {
+        params: {
+          pickupLocation: pickupLocation,
+          dropOffLocation: dropOffLocation,
+        },
+      }),
+    );
+  };
 
   return (
     <ScrollView
@@ -76,6 +95,7 @@ const Home = () => {
         </View>
 
         <TouchableOpacity
+          onPress={handleGoToBooking}
           style={[
             styles.bookingButton,
             (!pickupLocation || !dropOffLocation) && styles.disabledButton,
