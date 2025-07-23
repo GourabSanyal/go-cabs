@@ -4,6 +4,7 @@ import {NavigationContainer, DefaultTheme} from '@react-navigation/native';
 import {backgroundPrimary} from '../theme/colors';
 import AuthRoutes from './Auth.Routes';
 import OnbordingRoutes from './Onboarding.Routes';
+import TabsNavigator from './Tabs.Routes';
 
 const RootStack = createNativeStackNavigator();
 const MyTheme = {
@@ -23,6 +24,7 @@ const RootNavigator = () => {
           name="OnboardingScreens"
           component={OnbordingRoutes}
         />
+        <RootStack.Screen name="Tabs" component={TabsNavigator} />
       </RootStack.Navigator>
     </NavigationContainer>
   );
