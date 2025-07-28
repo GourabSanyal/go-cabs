@@ -1,19 +1,23 @@
 import {StyleSheet, Text, TouchableOpacity, View, ScrollView, SafeAreaView} from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import ProfileAvatar from '../../../assets/images/icons/profile-avatar.svg';
 import RatingStar from '../../../assets/images/icons/rating-star.svg';
 import {primaryColor} from '../../theme/colors';
 import Margin from '../../components/Margin';
-import {Icon} from '@ui-kitten/components';
-import {StackActions, useNavigation} from '@react-navigation/native';
+import {Icon, Spinner} from '@ui-kitten/components';
+import {StackActions, useNavigation, CommonActions} from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 import {getAuth, signOut} from '@react-native-firebase/auth';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   horizontalScale,
   verticalScale,
   scaleFontSize,
   spacing,
 } from '../../utils/responsive';
+import { useDispatch } from 'react-redux';
+import { logoutSuccess } from '../../shared/state/auth/reducer';
 
 export type ProfileStackParamList = {
   EditProfile: undefined;
@@ -29,15 +33,44 @@ export type ProfileStackParamList = {
 
 const Profile = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
+      setIsLoggingOut(true);
+      
+      // Sign out from Firebase first
       const auth = getAuth();
       await signOut(auth);
-      navigation.dispatch(StackActions.replace('AuthScreens'));
+      
+      try {
+        await GoogleSignin.signOut();
+      } catch (error) {
+        console.log('Google sign out error:', error);
+      }
+
+      // Clear Redux state
+      dispatch(logoutSuccess());
+
+      // Navigate directly to Login screen
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            { 
+              name: 'AuthScreens',
+              state: {
+                routes: [{ name: 'Login' }]
+              }
+            }
+          ],
+        })
+      );
     } catch (error) {
-      console.error(error);
-      throw error;
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -93,12 +126,26 @@ const Profile = () => {
                 <Text style={styles.h2}>{item.title}</Text>
               </TouchableOpacity>
             ))}
-            <View style={styles.listitem}>
-              <Icon name="settings" fill={primaryColor} width={iconSize} height={iconSize} />
-              <Text style={styles.h2} onPress={() => handleLogout()}>
+            <TouchableOpacity 
+              style={styles.listitem}
+              disabled={isLoggingOut}
+              onPress={handleLogout}
+              activeOpacity={0.95}>
+              <Icon 
+                name="settings" 
+                fill={isLoggingOut ? `${primaryColor}80` : primaryColor}
+                width={iconSize} 
+                height={iconSize} 
+              />
+              <Text style={[styles.h2, isLoggingOut && { opacity: 0.6 }]}>
                 Logout
               </Text>
-            </View>
+              {isLoggingOut && (
+                <View style={styles.loaderContainer}>
+                  <Spinner size="small" status="primary" />
+                </View>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -205,6 +252,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     borderBottomWidth: 1.5,
     borderBottomColor: '#1c2722',
-    paddingBottom: spacing.md,
+    paddingVertical: spacing.md,
+  },
+  loaderContainer: {
+    marginLeft: spacing.md,
   },
 });
