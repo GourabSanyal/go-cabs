@@ -6,17 +6,23 @@ import {
   TouchableOpacity,
   Animated,
   Switch,
+  Dimensions as RNDimensions,
 } from 'react-native';
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef} from 'react';
 import WebView from 'react-native-webview';
 import {backgroundPrimary, primaryColor} from '../../theme/colors';
 import DullDivider from '../../components/DullDivider';
 import CarIcon from '../../../assets/images/icons/car.svg';
-import {Dimensions as RNDimensions} from 'react-native';
 import {Driver} from '../../types/driver/driverTypes';
 import Margin from '@/components/Margin';
 import CustomButton from '@/components/CustomButton';
-import {StackActions, useNavigation} from '@react-navigation/native';
+import {
+  StackActions,
+  useNavigation,
+  useRoute,
+  RouteProp,
+} from '@react-navigation/native';
+import type {RootStackParamList} from '@/types/navigation';
 
 const {height: screenHeight} = RNDimensions.get('window');
 
@@ -26,13 +32,19 @@ interface AnimatedDriver extends Driver {
   exiting: boolean;
 }
 
+type BookRideRouteProp = RouteProp<RootStackParamList, 'BookRide'>;
+
 const BookRide = () => {
   const navigation = useNavigation();
+  const route = useRoute<BookRideRouteProp>();
   const webViewRef = useRef<WebView>(null);
   const [animatedDrivers, setAnimatedDrivers] = useState<AnimatedDriver[]>([]);
   const [showChargingStations, setShowChargingStations] = useState(true);
 
-  // Animation references - using a Map for better tracking by ID
+  const {pickupLocation, dropOffLocation} = route.params;
+  const finalPickupCoords = pickupLocation?.coordinates;
+  const finalDropOffCoords = dropOffLocation?.coordinates;
+
   const animationsMap = useRef(
     new Map<
       string,
@@ -44,7 +56,6 @@ const BookRide = () => {
     >(),
   );
 
-  // Render a single driver item with animations
   const renderDriverItem = (driver: AnimatedDriver) => {
     if (!driver.visible) return null;
     const animationValues = animationsMap.current.get(driver.animationId);
@@ -62,7 +73,6 @@ const BookRide = () => {
             opacity,
           },
         ]}>
-        {/* Progress bar */}
         <Animated.View
           style={[
             styles.progressBar,
@@ -75,12 +85,9 @@ const BookRide = () => {
           ]}
         />
         <TouchableOpacity style={styles.driverItem}>
-          {/* Driver Avatar */}
           <View style={styles.driverAvatar}>
             <Text style={styles.driverInitial}>{driver.name.charAt(0)}</Text>
           </View>
-
-          {/* Driver Info */}
           <View style={styles.driverDetails}>
             <Text style={styles.h1}>{driver.name}</Text>
             <Text style={styles.h2}>
@@ -95,9 +102,6 @@ const BookRide = () => {
       </Animated.View>
     );
   };
-
-  const finalPickupCoords = {lat: 24.52582, lng: 24.852471};
-  const finalDropOffCoords = {lat: 24.5282024, lng: 24.8574921};
 
   const sendDataToWebView = () => {
     if (webViewRef.current && finalPickupCoords && finalDropOffCoords) {
@@ -119,10 +123,10 @@ const BookRide = () => {
       <View style={styles.container}>
         <View style={styles.locationSummaryContainer}>
           <Text style={styles.locationSummaryText}>
-            Pickup:{'Pickup address'}
+            Pickup: {pickupLocation?.address || 'Not Selected'}
           </Text>
           <Text style={styles.locationSummaryText}>
-            Drop-off:{'Drop-off address'}
+            Drop-off: {dropOffLocation?.address || 'Not Selected'}
           </Text>
           <View style={styles.chargingToggleContainer}>
             <Text style={styles.switcText}>Show EV Charging Stations</Text>
@@ -141,28 +145,19 @@ const BookRide = () => {
           <WebView
             ref={webViewRef}
             originWhitelist={['*']}
-            source={{uri: 'file:///android_asset/map.html'}} // Make sure this path is correct for your setup
+            source={{uri: 'file:///android_asset/map.html'}}
             style={styles.map}
-            onLoadEnd={() => {
-              // console.log("[BookRide] WebView loaded. Sending coordinates.");
-              sendDataToWebView();
-            }}
+            onLoadEnd={sendDataToWebView}
             onError={syntheticEvent => {
               const {nativeEvent} = syntheticEvent;
               console.warn('[BookRide] WebView error: ', nativeEvent);
             }}
             onMessage={event => {
-              // Handle messages from WebView
               try {
                 const data = JSON.parse(event.nativeEvent.data);
                 console.log('[BookRide] Message from WebView:', data);
-
                 if (data.type === 'fetchChargingStations') {
-                  // handleFetchChargingStations(
-                  //   data.latitude,
-                  //   data.longitude,
-                  //   data.distance,
-                  // );
+                  // handleFetchChargingStations(data.latitude, data.longitude, data.distance);
                 }
               } catch (error) {
                 console.error(
@@ -174,7 +169,6 @@ const BookRide = () => {
             javaScriptEnabled={true}
             domStorageEnabled={true}
             startInLoadingState={true}
-            // renderLoading={() => <ActivityIndicator size="large" color={primaryColor} />} // Optional loading indicator
           />
         </View>
 
@@ -506,7 +500,7 @@ const styles = StyleSheet.create({
   },
   locationSummaryContainer: {
     padding: 15,
-    backgroundColor: '#353f3b', // A slightly different background for emphasis
+    backgroundColor: '#353f3b',
     borderRadius: 8,
     marginBottom: 20,
   },
@@ -517,7 +511,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   containerAlteredForMessage: {
-    // Styles for the message view if locations aren't ready
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -546,7 +539,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mapContainer: {
-    height: screenHeight * 0.3, // Or a fixed height like 250 or 300
+    height: screenHeight * 0.3,
     width: '100%',
     borderRadius: 10,
     overflow: 'hidden',
@@ -558,7 +551,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
 });
-
 const ridesData = [
   {
     name: 'Classic',

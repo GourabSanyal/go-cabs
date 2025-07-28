@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Ride Map v3</title>
+    <!-- Mapbox GL JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        /* Basic styling */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        #info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+            font-size: 10px;
+        }
+
+        /* Add popup styles */
+        .mapboxgl-popup {
+            max-width: 240px;
+        }
+
+        .mapboxgl-popup-content {
+            text-align: left;
+            padding: 10px;
+        }
+
+        .popup-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .popup-address {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .popup-detail {
+            font-size: 11px;
+            color: #555;
+        }
+
+        .operational {
+            color: green;
+        }
+
+        .non-operational {
+            color: red;
+        }
+
+        .charging-station-marker {
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%234CAF50" width="32" height="32"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/><path d="M10 8.5h4v6h-1.5v-3h-1v3H10v-6z" fill="white"/></svg>');
+            background-size: cover;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <div id="info">Map Initializing v4...</div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZ29jYWJzIiwiYSI6ImNtYXBnMmJncTA4NXQyanF2NXIzMHEwNWkifQ.7arQIkXZmcjAiGaqPRKDAQ';
+
+        let map;
+        let pickupLocation = null;
+        let destinationLocation = null;
+        let activeMarkers = [];
+        let chargingStationsMarkers = [];
+        let showChargingStations = true; // Set to true by default
+
+        window.setLocationsAndCalculateRoute = function (pLng, pLat, dLng, dLat) {
+            document.getElementById('info').innerText = `WebView v4: Received P: ${pLat},${pLng} D: ${dLat},${dLng}`;
+            pickupLocation = [parseFloat(pLng), parseFloat(pLat)];
+            destinationLocation = [parseFloat(dLng), parseFloat(dLat)];
+
+            if (map && map.loaded()) {
+                clearMapLayersAndMarkers();
+                addMarkers();
+                calculateAndDisplayRoute();
+                // Fetch charging stations based on the current route
+                if (showChargingStations) {
+                    const midPoint = calculateMidPoint(pickupLocation, destinationLocation);
+                    window.ReactNativeWebView.postMessage(JSON.stringify({
+                        type: 'fetchChargingStations',
+                        latitude: midPoint[1],
+                        longitude: midPoint[0],
+                        distance: calculateDistance(pickupLocation, destinationLocation) * 0.5 // Use half of route distance
+                    }));
+                }
+            } else {
+                if (map) map.setCenter(pickupLocation || [0, 0]);
+            }
+        };
+
+        window.toggleChargingStations = function (shouldShow) {
+            showChargingStations = shouldShow;
+
+            if (shouldShow && pickupLocation && destinationLocation) {
+                const midPoint = calculateMidPoint(pickupLocation, destinationLocation);
+                window.ReactNativeWebView.postMessage(JSON.stringify({
+                    type: 'fetchChargingStations',
+                    latitude: midPoint[1],
+                    longitude: midPoint[0],
+                    distance: calculateDistance(pickupLocation, destinationLocation) * 0.5
+                }));
+            } else {
+                clearChargingStationMarkers();
+            }
+        };
+
+        window.addChargingStations = function (stations) {
+            clearChargingStationMarkers();
+
+            if (!stations || !stations.length) {
+                document.getElementById('info').innerText += '\nNo charging stations found.';
+                return;
+            }
+
+            document.getElementById('info').innerText += `\nFound ${stations.length} charging stations.`;
+
+            stations.forEach(station => {
+                addChargingStationMarker(station);
+            });
+        };
+
+        function clearMapLayersAndMarkers() {
+            activeMarkers.forEach(marker => marker.remove());
+            activeMarkers = [];
+            if (map.getLayer('route')) map.removeLayer('route');
+            if (map.getSource('route')) map.removeSource('route');
+        }
+
+        function clearChargingStationMarkers() {
+            chargingStationsMarkers.forEach(marker => marker.remove());
+            chargingStationsMarkers = [];
+        }
+
+        function addMarkers() {
+            if (!pickupLocation || !destinationLocation) return;
+            const pickupMarker = new mapboxgl.Marker().setLngLat(pickupLocation).setPopup(new mapboxgl.Popup().setText("Pickup")).addTo(map);
+            activeMarkers.push(pickupMarker);
+            const destinationMarker = new mapboxgl.Marker().setLngLat(destinationLocation).setPopup(new mapboxgl.Popup().setText("Destination")).addTo(map);
+            activeMarkers.push(destinationMarker);
+        }
+
+        function addChargingStationMarker(station) {
+            // Create custom HTML element for marker
+            const el = document.createElement('div');
+            el.className = 'charging-station-marker';
+
+            // Create popup with station details
+            const popup = new mapboxgl.Popup({ offset: [0, -30] })
+                .setHTML(`
+                    <div class="popup-title">${station.name || 'EV Charging Station'}</div>
+                    <div class="popup-address">${station.address || 'Address unavailable'}</div>
+                    <div class="popup-detail">
+                        Status: <span class="${station.isOperational ? 'operational' : 'non-operational'}">${station.isOperational ? 'Operational' : 'Not operational'}</span>
+                    </div>
+                    <div class="popup-detail">Connectors: ${station.connectionTypes.join(', ') || 'Unknown'}</div>
+                    ${station.powerKW ? `<div class="popup-detail">Power: ${station.powerKW} kW</div>` : ''}
+                    ${station.numberOfPoints ? `<div class="popup-detail">Number of points: ${station.numberOfPoints}</div>` : ''}
+                    ${station.operator ? `<div class="popup-detail">Operator: ${station.operator}</div>` : ''}
+                `);
+
+            // Add marker to map
+            const marker = new mapboxgl.Marker(el)
+                .setLngLat([station.longitude, station.latitude])
+                .setPopup(popup)
+                .addTo(map);
+
+            chargingStationsMarkers.push(marker);
+        }
+
+        function calculateMidPoint(point1, point2) {
+            return [
+                (point1[0] + point2[0]) / 2,
+                (point1[1] + point2[1]) / 2
+            ];
+        }
+
+        function calculateDistance(point1, point2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (point2[1] - point1[1]) * Math.PI / 180;
+            const dLon = (point2[0] - point1[0]) * Math.PI / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(point1[1] * Math.PI / 180) * Math.cos(point2[1] * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c; // Distance in km
+        }
+
+        function initMap() {
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: pickupLocation || [0, 0],
+                zoom: pickupLocation ? 11 : 1
+            });
+
+            map.on('load', () => {
+                if (pickupLocation && destinationLocation) {
+                    document.getElementById('info').innerText = 'WebView v4: Map loaded. Plotting received locations.';
+                    addMarkers();
+                    calculateAndDisplayRoute();
+
+                    // Initially fetch charging stations if enabled
+                    if (showChargingStations) {
+                        const midPoint = calculateMidPoint(pickupLocation, destinationLocation);
+                        window.ReactNativeWebView.postMessage(JSON.stringify({
+                            type: 'fetchChargingStations',
+                            latitude: midPoint[1],
+                            longitude: midPoint[0],
+                            distance: calculateDistance(pickupLocation, destinationLocation) * 0.5
+                        }));
+                    }
+                } else {
+                    document.getElementById('info').innerText = 'WebView v4: Map loaded. Waiting for location data from app...';
+                }
+            });
+            map.on('error', (e) => {
+                console.error('Mapbox GL error:', e.error ? e.error.message : e);
+                document.getElementById('info').innerText = 'Map error (v4).';
+            });
+        }
+
+        async function calculateAndDisplayRoute() {
+            if (!pickupLocation || !destinationLocation) {
+                document.getElementById('info').innerText = 'WebView v4: Locations not set for routing.';
+                return;
+            }
+            document.getElementById('info').innerText = `WebView v4: Routing from ${pickupLocation.join(',')} to ${destinationLocation.join(',')}`;
+
+            if (!mapboxgl.accessToken) {
+                console.error("WebView: Missing access token for routing.");
+                document.getElementById('info').innerText = 'Error: Missing access token (v4).';
+                return;
+            }
+            const coordinates = `${pickupLocation.join(',')};${destinationLocation.join(',')}`;
+            const queryUrl = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordinates}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+
+            try {
+                const query = await fetch(queryUrl, { method: 'GET' });
+                const json = await query.json();
+
+                if (json.routes && json.routes.length) {
+                    const data = json.routes[0];
+                    const route = data.geometry.coordinates;
+                    const geojson = { type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: route } };
+
+                    if (map.getSource('route')) map.getSource('route').setData(geojson);
+                    else {
+                        map.addLayer({
+                            id: 'route', type: 'line', source: { type: 'geojson', data: geojson },
+                            layout: { 'line-join': 'round', 'line-cap': 'round' },
+                            paint: { 'line-color': '#3887be', 'line-width': 5, 'line-opacity': 0.75 }
+                        });
+                    }
+                    const distance = (data.distance / 1000).toFixed(2);
+                    const duration = Math.round(data.duration / 60);
+                    const co2EmissionFactor = 0.180; // kg CO2 per km (approx. 180g CO2/km for an average mid-sized petrol car)
+                    const co2Emissions = (parseFloat(distance) * co2EmissionFactor).toFixed(2); // in kg
+                    document.getElementById('info').innerText = `Distance: ${distance} km (${duration} mins) (v4)\nEst. CO2 Emissions: ${co2Emissions} kg`;
+                    const bounds = new mapboxgl.LngLatBounds(route[0], route[0]);
+                    for (const coord of route) bounds.extend(coord);
+                    map.fitBounds(bounds, { padding: 60 });
+                } else {
+                    const message = json.message || "Directions request failed (v4)";
+                    document.getElementById('info').innerText = `Route Error: ${message}`;
+                    console.error("Mapbox Directions API error:", json);
+                }
+            } catch (error) {
+                console.error("Error fetching directions (v4):", error);
+                document.getElementById('info').innerText = 'Could not fetch route details (v4).';
+            }
+        }
+        window.onload = initMap;
+    </script>
+</body>
+
+</html>
