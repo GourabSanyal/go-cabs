@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
   Animated,
   Easing,
 } from 'react-native';
@@ -13,14 +12,21 @@ import ClassicRideLogo from '../../../../assets/images/icons/classic-ride.svg';
 import DeluxeRideLogo from '../../../../assets/images/icons/deluxe-ride.svg';
 import PrimeRideLogo from '../../../../assets/images/icons/prime-ride.svg';
 import {Icon} from '@ui-kitten/components';
+import {
+  horizontalScale,
+  verticalScale,
+  scaleFontSize,
+  spacing,
+  borderRadius,
+  metrics,
+} from '../../../utils/responsive';
 
-const {width} = Dimensions.get('window');
 const HomeBanner = () => {
   // Animation values
   const iconScale = useRef(new Animated.Value(1)).current;
   const badgeOpacity = useRef(new Animated.Value(0.6)).current;
   const numberValue = useRef(new Animated.Value(0)).current;
-  const shineAnim = useRef(new Animated.Value(-width)).current;
+  const shineAnim = useRef(new Animated.Value(-metrics.screenWidth)).current;
 
   // Setup animations
   useEffect(() => {
@@ -72,13 +78,13 @@ const HomeBanner = () => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(shineAnim, {
-          toValue: width,
+          toValue: metrics.screenWidth,
           duration: 2500,
           useNativeDriver: true,
           easing: Easing.ease,
         }),
         Animated.timing(shineAnim, {
-          toValue: -width,
+          toValue: -metrics.screenWidth,
           duration: 0,
           useNativeDriver: true,
         }),
@@ -102,6 +108,8 @@ const HomeBanner = () => {
     };
   }, []);
 
+  const logoSize = horizontalScale(50);
+
   return (
     <>
       <LinearGradient
@@ -111,15 +119,15 @@ const HomeBanner = () => {
         style={styles.containerChooseRide}>
         <Text style={[styles.h2, {flexGrow: 1}]}>Choose {'\n'}your ride</Text>
         <View>
-          <ClassicRideLogo width={50} height={50} />
+          <ClassicRideLogo width={logoSize} height={logoSize} />
           <Text style={styles.h4}>Classic</Text>
         </View>
         <View>
-          <DeluxeRideLogo width={50} height={50} />
+          <DeluxeRideLogo width={logoSize} height={logoSize} />
           <Text style={styles.h4}>Deluxe</Text>
         </View>
         <View>
-          <PrimeRideLogo width={50} height={50} />
+          <PrimeRideLogo width={logoSize} height={logoSize} />
           <Text style={styles.h4}>Prime</Text>
         </View>
       </LinearGradient>
@@ -152,12 +160,12 @@ const HomeBanner = () => {
               ]}>
               <Icon
                 name="globe-outline"
-                width={24}
-                height={24}
+                width={horizontalScale(24)}
+                height={horizontalScale(24)}
                 fill={primaryColor}
               />
             </Animated.View>
-            <Text style={[styles.h1, styles.responsiveH1]}>
+            <Text style={styles.h1}>
               {formattedNumber} Tons
             </Text>
             <Text style={styles.h3}>Carbon saved by you this year</Text>
@@ -179,13 +187,13 @@ const HomeBanner = () => {
             <View style={styles.coinIconContainer}>
               <Icon
                 name="award-outline"
-                width={24}
-                height={24}
+                width={horizontalScale(24)}
+                height={horizontalScale(24)}
                 fill={primaryColor}
               />
             </View>
             <Text style={[styles.h3, {textAlign: 'center'}]}>You Earned</Text>
-            <Text style={[styles.h1, styles.responsiveH1]}>$200.80</Text>
+            <Text style={styles.h1}>$200.80</Text>
             <Text
               style={[styles.h3, {color: primaryColor, textAlign: 'center'}]}>
               Carbon Coins
@@ -201,120 +209,112 @@ export default HomeBanner;
 
 const styles = StyleSheet.create({
   containerChooseRide: {
-    borderRadius: 12,
+    borderRadius: borderRadius.md,
     borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 25,
-    marginBottom: 30,
+    gap: spacing.lg,
+    marginBottom: spacing.xl,
     alignItems: 'center',
-    padding: 20,
+    padding: spacing.md,
   },
   containerWrapper: {
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
     shadowColor: '#00bf72',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: verticalScale(4),
     },
     shadowOpacity: 0.3,
-    shadowRadius: 10,
+    shadowRadius: borderRadius.md,
     elevation: 10,
-    marginHorizontal: 3,
+    marginHorizontal: spacing.xs,
   },
   container: {
-    borderRadius: 16,
+    borderRadius: borderRadius.lg,
     borderWidth: 1,
     borderColor: 'rgba(229, 229, 229, 0.2)',
     backgroundColor: '#1c2722',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 2,
+    padding: spacing.xs,
     overflow: 'hidden',
   },
   carbonSection: {
     flex: 1,
-    padding: 20,
+    padding: spacing.md,
     alignItems: 'center',
     position: 'relative',
     overflow: 'hidden',
   },
   coinsSection: {
     flex: 1,
-    padding: 20,
+    padding: spacing.md,
     alignItems: 'center',
   },
   shineEffect: {
     position: 'absolute',
-    top: -30,
+    top: verticalScale(-30),
     left: 0,
-    bottom: -30,
-    width: 120,
+    bottom: verticalScale(-30),
+    width: horizontalScale(120),
     backgroundColor: 'transparent',
     zIndex: 10,
   },
   carbonIconContainer: {
     backgroundColor: 'rgba(0, 191, 114, 0.15)',
-    padding: 8,
-    borderRadius: 50,
-    marginBottom: 10,
+    padding: spacing.sm,
+    borderRadius: borderRadius.round,
+    marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: 'rgba(0, 191, 114, 0.3)',
   },
   coinIconContainer: {
     backgroundColor: 'rgba(0, 191, 114, 0.15)',
-    padding: 8,
-    borderRadius: 50,
-    marginBottom: 10,
+    padding: spacing.sm,
+    borderRadius: borderRadius.round,
+    marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: 'rgba(0, 191, 114, 0.3)',
   },
   ecoTagContainer: {
-    marginTop: 10,
+    marginTop: spacing.sm,
   },
   ecoTag: {
     backgroundColor: 'rgba(0, 191, 114, 0.2)',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    borderRadius: borderRadius.lg,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
     borderWidth: 1,
     borderColor: 'rgba(0, 191, 114, 0.3)',
   },
   ecoTagText: {
     color: primaryColor,
     fontFamily: 'Montserrat-Bold',
-    fontSize: 10,
-  },
-  image: {
-    width: 50,
-    height: 50,
+    fontSize: scaleFontSize(10),
   },
   h1: {
     fontFamily: 'Montserrat-ExtraBold',
-    fontSize: 35,
+    fontSize: scaleFontSize(35),
     color: primaryColor,
+    textAlign: 'center',
   },
   h2: {
     fontFamily: 'Montserrat-ExtraBold',
-    fontSize: 22,
+    fontSize: scaleFontSize(22),
     color: '#fff',
   },
   h3: {
     fontFamily: 'Montserrat-Bold',
-    fontSize: 16,
+    fontSize: scaleFontSize(16),
     color: '#fff',
     textAlign: 'center',
   },
   h4: {
     fontFamily: 'Montserrat-Bold',
-    fontSize: 12,
+    fontSize: scaleFontSize(12),
     color: '#fff',
-    marginTop: 5,
+    marginTop: spacing.xs,
     textAlign: 'center',
-  },
-  responsiveH1: {
-    fontSize: width * 0.06,
-    textAlign: 'center',
-    flexWrap: 'wrap',
   },
 });
