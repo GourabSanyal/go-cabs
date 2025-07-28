@@ -17,11 +17,13 @@ import {
 import GoogleIcon from '../../assets/images/icons/google.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useDispatch, useSelector} from 'react-redux';
-import {setGoogleLoading} from '../shared/state/auth/reducer';
+import {loginSuccess, setGoogleLoading} from '../shared/state/auth/reducer';
 import {RootState} from '../shared/state/store';
+import {useNavigation} from '@react-navigation/native';
 
 export default function GoogleAuth() {
   const dispatch = useDispatch();
+  const navigation = useNavigation<any>();
   const {isGoogleLoading} = useSelector((state: RootState) => state.auth);
   const db = getFirestore();
 
@@ -69,7 +71,23 @@ export default function GoogleAuth() {
         signInResult.data!.idToken,
       );
       // Sign-in the user with the credential
-      return signInWithCredential(getAuth(), googleCredential);
+      const userCredential = await signInWithCredential(getAuth(), googleCredential);
+      
+      // Save user state to Redux (which will be persisted)
+      dispatch(loginSuccess({
+        provider: 'google',
+        address: userId,
+        username: name,
+        profilePicUrl: photo || undefined,
+      }));
+
+      // Navigate to home screen
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Tabs'}],
+      });
+
+      return userCredential;
     } catch (error) {
       console.error(error);
       dispatch(setGoogleLoading(false));
