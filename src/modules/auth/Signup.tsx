@@ -9,11 +9,14 @@ import FacebookIcon from '../../../assets/images/icons/facebook.svg';
 import AppleIcon from '../../../assets/images/icons/apple.svg';
 import CustomButton from '../../components/CustomButton';
 import GoogleAuth from '@/components/GoogleAuth';
+import {useSelector} from 'react-redux';
+import {RootState} from '@/shared/state/store';
 
 const Signup = () => {
   const navigation = useNavigation();
   const [value, setValue] = React.useState('');
   const [checked, setChecked] = React.useState(true);
+  const {isLoggingIn} = useSelector((state: RootState) => state.auth);
 
   return (
     <View style={styles.container}>
@@ -27,11 +30,13 @@ const Signup = () => {
         value={value}
         style={styles.input}
         onChangeText={nextValue => setValue(nextValue)}
+        disabled={isLoggingIn}
       />
       <View style={{marginTop: 30}}>
         <CheckBox
           checked={checked}
-          onChange={nextChecked => setChecked(nextChecked)}>
+          onChange={nextChecked => setChecked(nextChecked)}
+          disabled={isLoggingIn}>
           <Text>
             <Text style={styles.checkbox}>By signing up. you agree to the</Text>{' '}
             <Text
@@ -59,6 +64,7 @@ const Signup = () => {
         onPress={() => navigation.navigate('VerifyOtp' as never)}
         status="primary"
         size="medium"
+        disabled={isLoggingIn}
       />
       <View style={styles.orContainer}>
         <View style={styles.orDivider} />
@@ -68,15 +74,21 @@ const Signup = () => {
       <Text style={[styles.h2_bold, {color: primaryColor}]}>Sign Up with</Text>
       <View style={styles.social}>
         <GoogleAuth />
-        <TouchableOpacity activeOpacity={0.95}>
+        <TouchableOpacity 
+          activeOpacity={0.95}
+          disabled={isLoggingIn}
+          style={{ opacity: isLoggingIn ? 0.7 : 1 }}>
           <FacebookIcon width={50} height={50} />
         </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.95}>
+        <TouchableOpacity 
+          activeOpacity={0.95}
+          disabled={isLoggingIn}
+          style={{ opacity: isLoggingIn ? 0.7 : 1 }}>
           <AppleIcon width={50} height={50} />
         </TouchableOpacity>
       </View>
       <Text style={styles.h2_bold}>
-        Don’t have an account?{' '}
+        Don't have an account?{' '}
         <Text
           onPress={() => navigation.navigate('Login' as never)}
           style={[styles.h2_bold, styles.underline]}>
