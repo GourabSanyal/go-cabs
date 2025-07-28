@@ -1,4 +1,4 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View, ScrollView, SafeAreaView} from 'react-native';
 import React from 'react';
 import ProfileAvatar from '../../../assets/images/icons/profile-avatar.svg';
 import RatingStar from '../../../assets/images/icons/rating-star.svg';
@@ -8,6 +8,12 @@ import {Icon} from '@ui-kitten/components';
 import {StackActions, useNavigation} from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton';
 import {getAuth, signOut} from '@react-native-firebase/auth';
+import {
+  horizontalScale,
+  verticalScale,
+  scaleFontSize,
+  spacing,
+} from '../../utils/responsive';
 
 export type ProfileStackParamList = {
   EditProfile: undefined;
@@ -35,66 +41,68 @@ const Profile = () => {
     }
   };
 
+  const starSize = horizontalScale(20);
+  const avatarSize = horizontalScale(70);
+  const iconSize = horizontalScale(25);
+
   return (
-    <>
-      <View style={styles.container}>
-        <View
-          style={{
-            flexDirection: 'row',
-            gap: 10,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 2,
-          }}>
-          <View>
-            <Text style={styles.h1}>Arjun sharma</Text>
-            <Text style={styles.h3}>+1 1234567890</Text>
-            <View style={{flexDirection: 'row', gap: 3, alignItems: 'center'}}>
-              <RatingStar width={20} height={20} />
-              <RatingStar width={20} height={20} />
-              <RatingStar width={20} height={20} />
-              <RatingStar width={20} height={20} />
-              <RatingStar width={20} height={20} />
-              <Text style={styles.ratingText}>5</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView 
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}>
+        <View style={styles.container}>
+          <View style={styles.headerContainer}>
+            <View>
+              <Text style={styles.h1}>Arjun sharma</Text>
+              <Text style={styles.h3}>+1 1234567890</Text>
+              <View style={styles.ratingContainer}>
+                <RatingStar width={starSize} height={starSize} />
+                <RatingStar width={starSize} height={starSize} />
+                <RatingStar width={starSize} height={starSize} />
+                <RatingStar width={starSize} height={starSize} />
+                <RatingStar width={starSize} height={starSize} />
+                <Text style={styles.ratingText}>5</Text>
+              </View>
+            </View>
+            <ProfileAvatar width={avatarSize} height={avatarSize} />
+          </View>
+
+          <Margin margin={spacing.lg} />
+          <CustomButton
+            title="Safety Check"
+            onPress={() => navigation.dispatch(StackActions.push('SafetyCheck'))}
+            status="primary"
+            size="medium"
+          />
+
+          <Margin margin={spacing.lg} />
+          <View style={styles.listContainer}>
+            {profileListItems?.map((item, i) => (
+              <TouchableOpacity
+                activeOpacity={0.95}
+                key={i}
+                style={styles.listitem}
+                onPress={() => navigation.dispatch(StackActions.push(item.path))}>
+                <Icon
+                  name={item?.icon}
+                  fill={primaryColor}
+                  width={iconSize}
+                  height={iconSize}
+                />
+                <Text style={styles.h2}>{item.title}</Text>
+              </TouchableOpacity>
+            ))}
+            <View style={styles.listitem}>
+              <Icon name="settings" fill={primaryColor} width={iconSize} height={iconSize} />
+              <Text style={styles.h2} onPress={() => handleLogout()}>
+                Logout
+              </Text>
             </View>
           </View>
-          <ProfileAvatar width={70} height={70} />
         </View>
-
-        <Margin margin={20} />
-        <CustomButton
-          title="Safety Check"
-          onPress={() => navigation.dispatch(StackActions.push('SafetyCheck'))}
-          status="primary"
-          size="medium"
-        />
-
-        <Margin margin={20} />
-        <View style={{gap: 20}}>
-          {profileListItems?.map((item, i) => (
-            <TouchableOpacity
-              activeOpacity={0.95}
-              key={i}
-              style={styles.listitem}
-              onPress={() => navigation.dispatch(StackActions.push(item.path))}>
-              <Icon
-                name={item?.icon}
-                fill={primaryColor}
-                width={25}
-                height={25}
-              />
-              <Text style={styles.h2}>{item.title}</Text>
-            </TouchableOpacity>
-          ))}
-          <View style={styles.listitem}>
-            <Icon name="settings" fill={primaryColor} width={25} height={25} />
-            <Text style={styles.h2} onPress={() => handleLogout()}>
-              Logout
-            </Text>
-          </View>
-        </View>
-      </View>
-    </>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -139,41 +147,64 @@ const profileListItems = [
 ];
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
   container: {
-    paddingLeft: 20,
-    paddingRight: 20,
-    paddingBottom: 20,
-    paddingTop: 10,
-    gap: 10,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
+    paddingTop: spacing.sm,
+    gap: spacing.sm,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: verticalScale(2),
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    alignItems: 'center',
+  },
+  listContainer: {
+    gap: spacing.md,
   },
   h1: {
     color: '#fff',
     fontFamily: 'Montserrat-Bold',
-    fontSize: 25,
+    fontSize: scaleFontSize(25),
   },
   h3: {
     color: '#fff',
     fontFamily: 'Montserrat-Regular',
-    fontSize: 13,
+    fontSize: scaleFontSize(13),
   },
   h2: {
     color: '#fff',
     fontFamily: 'Montserrat-Medium',
-    fontSize: 18,
+    fontSize: scaleFontSize(18),
   },
   ratingText: {
     color: primaryColor,
     fontFamily: 'Montserrat-SemiBold',
-    marginLeft: 5,
-    marginTop: 3,
-    fontSize: 16,
+    marginLeft: spacing.xs,
+    marginTop: verticalScale(3),
+    fontSize: scaleFontSize(16),
   },
   listitem: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: spacing.sm,
     borderBottomWidth: 1.5,
     borderBottomColor: '#1c2722',
-    paddingBottom: 15,
+    paddingBottom: spacing.md,
   },
 });
