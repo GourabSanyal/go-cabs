@@ -44,10 +44,8 @@ const Home = () => {
     }
     navigation.dispatch(
       StackActions.push('BookRide', {
-        params: {
-          pickupLocation: pickupLocation,
-          dropOffLocation: dropOffLocation,
-        },
+        pickupLocation: pickupLocation,
+        dropOffLocation: dropOffLocation,
       }),
     );
   };
