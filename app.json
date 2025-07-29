@@ -21,7 +21,7 @@
     },
     "ios": {
       "googleServicesFile": "./src/keys/GoogleService-Info.plist",
-      "bundleIdentifier": "com.gocabs",
+      "bundleIdentifier": "org.gocabs.com",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "We need access to your photos to let you pick images."
       }

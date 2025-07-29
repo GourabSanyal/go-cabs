@@ -2,7 +2,7 @@ import {SERVER_URL} from '@env';
 import {createSlice, createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 
 export interface AuthState {
-  provider: 'privy' | 'dynamic' | 'turnkey' | 'mwa' |  null;
+  provider: 'privy' | 'dynamic' | 'turnkey' | 'mwa' | 'google' | 'apple' | 'facebook' | null;
   address: string | null;
   isLoggedIn: boolean;
   profilePicUrl: string | null;
@@ -16,6 +16,8 @@ export interface AuthState {
       name?: string;
     };
   };
+  isGoogleLoading: boolean;
+  isLoggingIn: boolean;
 }
 
 const initialState: AuthState = {
@@ -26,6 +28,8 @@ const initialState: AuthState = {
   username: null,
   description: null,
   attachmentData: {},
+  isGoogleLoading: false,
+  isLoggingIn: false,
 };
 
 const SERVER_BASE_URL = SERVER_URL || 'http://localhost:3000';
@@ -252,10 +256,14 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    setGoogleLoading(state, action: PayloadAction<boolean>) {
+      state.isGoogleLoading = action.payload;
+      state.isLoggingIn = action.payload;
+    },
     loginSuccess(
       state,
       action: PayloadAction<{
-        provider: 'privy' | 'dynamic' | 'turnkey' | 'mwa';
+        provider: 'privy' | 'dynamic' | 'turnkey' | 'mwa' | 'google' | 'apple' | 'facebook';
         address: string;
         profilePicUrl?: string;
         username?: string;
@@ -287,6 +295,8 @@ const authSlice = createSlice({
       if (action.payload.description || !state.description) {
         state.description = action.payload.description || state.description;
       }
+      state.isGoogleLoading = false;
+      state.isLoggingIn = false;
     },
     logoutSuccess(state) {
       console.log('[AuthReducer] logoutSuccess: Resetting state.');
@@ -297,6 +307,8 @@ const authSlice = createSlice({
       state.username = null;
       state.description = null;
       state.attachmentData = {};
+      state.isGoogleLoading = false;
+      state.isLoggingIn = false;
       console.log('[AuthReducer] State after logoutSuccess:', JSON.stringify(state));
     },
     updateProfilePic(state, action: PayloadAction<string>) {
@@ -371,6 +383,6 @@ const authSlice = createSlice({
   },
 });
 
-export const {loginSuccess, logoutSuccess, updateProfilePic} =
+export const {loginSuccess, logoutSuccess, updateProfilePic, setGoogleLoading} =
   authSlice.actions;
 export default authSlice.reducer;

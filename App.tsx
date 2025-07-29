@@ -9,20 +9,25 @@ import RootNavigator from './src/routes/RootNavigator';
 import {backgroundPrimary} from './src/theme/colors';
 import {customMapping} from './src/theme/customMapping';
 import {StatusBar} from 'expo-status-bar';
+import {Provider} from 'react-redux';
+import {PersistGate} from 'redux-persist/integration/react';
+import {store, persistor} from './src/shared/state/store';
 
 const App = () => (
-  <>
-    <StatusBar translucent style="inverted" />
-    <IconRegistry icons={EvaIconsPack} />
-    <ApplicationProvider
-      {...eva}
-      theme={{...eva.light, ...customTheme}}
-      customMapping={customMapping}>
-      <SafeAreaView style={styles.container}>
-        <RootNavigator />
-      </SafeAreaView>
-    </ApplicationProvider>
-  </>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <StatusBar translucent style="inverted" />
+      <IconRegistry icons={EvaIconsPack} />
+      <ApplicationProvider
+        {...eva}
+        theme={{...eva.light, ...customTheme}}
+        customMapping={customMapping}>
+        <SafeAreaView style={styles.container}>
+          <RootNavigator />
+        </SafeAreaView>
+      </ApplicationProvider>
+    </PersistGate>
+  </Provider>
 );
 
 export default App;

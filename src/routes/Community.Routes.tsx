@@ -11,7 +11,10 @@ const CommunityNavigator = () => {
         headerShown: false,
         animation: 'none',
       }}>
-      <CommunityStack.Screen name="Community" component={Community} />
+      <CommunityStack.Screen 
+        name="CommunityScreen" 
+        component={Community} 
+      />
     </CommunityStack.Navigator>
   );
 };
