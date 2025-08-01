@@ -3,6 +3,8 @@ import React from 'react';
 import GoLogo from '../../assets/images/logo.svg';
 import {ArrowLeft} from 'lucide-react-native';
 import {useNavigation} from '@react-navigation/native';
+import {isIOS} from '../shared/utils/platform';
+import {verticalScale, spacing} from '../utils/responsive';
 
 const TopBar = ({hasBackButton}: {hasBackButton?: boolean}) => {
   const navigation = useNavigation();
@@ -30,7 +32,8 @@ export default TopBar;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 15,
+    padding: spacing.md,
+    paddingTop: isIOS() ? verticalScale(50) : spacing.md,
     borderBottomWidth: 1.5,
     borderBottomColor: '#1c2722',
     flexDirection: 'row',
