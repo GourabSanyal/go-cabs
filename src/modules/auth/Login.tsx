@@ -10,10 +10,13 @@ import GoogleIcon from '../../../assets/images/icons/google.svg';
 import FacebookIcon from '../../../assets/images/icons/facebook.svg';
 import AppleIcon from '../../../assets/images/icons/apple.svg';
 import GoogleAuth from '@/components/GoogleAuth';
+import {useSelector} from 'react-redux';
+import {RootState} from '@/shared/state/store';
 
 const Login = () => {
   const navigation = useNavigation();
   const [value, setValue] = React.useState('');
+  const {isLoggingIn} = useSelector((state: RootState) => state.auth);
 
   return (
     <View style={styles.container}>
@@ -27,6 +30,7 @@ const Login = () => {
         value={value}
         style={styles.input}
         onChangeText={nextValue => setValue(nextValue)}
+        disabled={isLoggingIn}
       />
       <Margin margin={30} />
       <CustomButton
@@ -34,6 +38,7 @@ const Login = () => {
         onPress={() => navigation.navigate('VerifyOtp' as never)}
         status="primary"
         size="medium"
+        disabled={isLoggingIn}
       />
       <View style={styles.orContainer}>
         <View style={styles.orDivider} />
@@ -43,10 +48,16 @@ const Login = () => {
       <Text style={[styles.h2_bold, {color: primaryColor}]}>Log In with</Text>
       <View style={styles.social}>
         <GoogleAuth />
-        <TouchableOpacity activeOpacity={0.95}>
+        <TouchableOpacity 
+          activeOpacity={0.95}
+          disabled={isLoggingIn}
+          style={{ opacity: isLoggingIn ? 0.7 : 1 }}>
           <FacebookIcon width={50} height={50} />
         </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.95}>
+        <TouchableOpacity 
+          activeOpacity={0.95}
+          disabled={isLoggingIn}
+          style={{ opacity: isLoggingIn ? 0.7 : 1 }}>
           <AppleIcon width={50} height={50} />
         </TouchableOpacity>
       </View>

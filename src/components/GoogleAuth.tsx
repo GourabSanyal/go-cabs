@@ -1,5 +1,5 @@
 import React from 'react';
-import {TouchableOpacity} from 'react-native';
+import {TouchableOpacity, ActivityIndicator} from 'react-native';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {
   GoogleAuthProvider,
@@ -16,8 +16,15 @@ import {
 } from '@react-native-firebase/firestore';
 import GoogleIcon from '../../assets/images/icons/google.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useDispatch, useSelector} from 'react-redux';
+import {loginSuccess, setGoogleLoading} from '../shared/state/auth/reducer';
+import {RootState} from '../shared/state/store';
+import {useNavigation} from '@react-navigation/native';
 
 export default function GoogleAuth() {
+  const dispatch = useDispatch();
+  const navigation = useNavigation<any>();
+  const {isGoogleLoading} = useSelector((state: RootState) => state.auth);
   const db = getFirestore();
 
   GoogleSignin.configure({
@@ -27,6 +34,7 @@ export default function GoogleAuth() {
 
   async function onGoogleButtonPress() {
     try {
+      dispatch(setGoogleLoading(true));
       // Check if your device supports Google Play
       await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
       // Get the users ID token
@@ -37,9 +45,11 @@ export default function GoogleAuth() {
       const userId = signInResult.data?.user.id;
       // Try the new style of google-sign in result, from v13+ of that module
       let idToken = signInResult.data?.idToken;
+      console.log('signInResult', signInResult);
       if (!idToken) {
         // if you are using older versions of google-signin, try old style result
         idToken = signInResult.data?.idToken;
+        console.log('idToken', idToken);
       }
       if (!idToken || !name || !userId) {
         throw new Error('No ID token & name found');
@@ -61,19 +71,60 @@ export default function GoogleAuth() {
         signInResult.data!.idToken,
       );
       // Sign-in the user with the credential
-      return signInWithCredential(getAuth(), googleCredential);
+      const userCredential = await signInWithCredential(getAuth(), googleCredential);
+      
+      // Save user state to Redux (which will be persisted)
+      dispatch(loginSuccess({
+        provider: 'google',
+        address: userId,
+        username: name,
+        profilePicUrl: photo || undefined,
+      }));
+
+      // Navigate to home screen
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'Tabs'}],
+      });
+
+      return userCredential;
     } catch (error) {
       console.error(error);
+      dispatch(setGoogleLoading(false));
       throw error;
     }
   }
+
   return (
     <TouchableOpacity
       activeOpacity={0.95}
+      disabled={isGoogleLoading}
       onPress={() =>
-        onGoogleButtonPress().then(() => console.log('Signed in with Google!'))
-      }>
+        onGoogleButtonPress().then(() => {
+          console.log('Signed in with Google!');
+          dispatch(setGoogleLoading(false));
+        })
+        .catch(() => {
+          dispatch(setGoogleLoading(false));
+        })
+      }
+      style={{
+        opacity: isGoogleLoading ? 0.7 : 1,
+        position: 'relative',
+      }}>
       <GoogleIcon width={50} height={50} />
+      {isGoogleLoading && (
+        <ActivityIndicator
+          size="small"
+          color="#000"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: [{translateX: -12}, {translateY: -12}],
+          }}
+        />
+      )}
     </TouchableOpacity>
   );
 }
